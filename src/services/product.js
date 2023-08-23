@@ -1,17 +1,36 @@
 import { api } from './api'
 
-export const getProducts = async () => {
+// export const getProducts = async () => {
+//   try {
+//     const response = await api.get('/products');
+//     return response;
+//   } catch(error) {
+//     if (!error.response) {
+//       return { networkError: 'Erro de conexão.'}
+//     } else {
+//       return error.response;
+//     }
+//   } 
+// }
+
+export const getProducts = async (searchTerm) => {
   try {
-    const response = await api.get('/products');
+    let url = '/products';
+    
+    if (searchTerm) {
+      url += `?search=${encodeURIComponent(searchTerm)}`;
+    }
+
+    const response = await api.get(url);
     return response;
-  } catch(error) {
+  } catch (error) {
     if (!error.response) {
-      return { networkError: 'Erro de conexão.'}
+      return { networkError: 'Erro de conexão.' };
     } else {
       return error.response;
     }
-  } 
-}
+  }
+};
 
 export const getProduct = async (id) => {
   try {

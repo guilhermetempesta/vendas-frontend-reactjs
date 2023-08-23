@@ -29,6 +29,7 @@ import ProductsPage from "../pages/ProductsPage";
 import ProductPage from "../pages/ProductPage";
 import CustomersPage from "../pages/CustomersPage";
 import CustomerPage from "../pages/CustomerPage";
+// import SaleItemPage from "../pages/SaleItemPage";
 
 const AppRoutes = () => {
 
@@ -77,7 +78,7 @@ const AppRoutes = () => {
           <Route exact path="/sales" element={<Private><Layout><SalesPage/></Layout></Private>}/>
           <Route exact path="/new-sale" element={<Private><Layout><SalePage/></Layout></Private>}/>
           <Route exact path="/sale/:id" element={<Private><Layout><SalePage/></Layout></Private>}/>
-          
+          {/* <Route exact path="/sale/add-item" element={<Private><Layout><SaleItemPage/></Layout></Private>} /> */}
           {/* test routes */}
           <Route exact path="/test1" element={<Private><Layout><TestParagraph1/></Layout></Private>}/>
           <Route exact path="/test2" element={<Private><Layout><TestParagraph2/></Layout></Private>}/>

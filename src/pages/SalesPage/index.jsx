@@ -188,12 +188,16 @@ export default function SalesPage() {
               }}
             >
               <ListItemText
-                primary={`${format(new Date(item.date), 'dd/MM/yyyy')} - ${item.customer.name}`}
-                primaryTypographyProps={{ align: 'left' }}
+                primary={`${item.code.toString().padStart(6, '0')} - ${item.customer.name}`}
                 secondary={
-                  <Typography variant="h5" color="primary" align="right">
-                    {`R$ ${item.total.toFixed(2)}`}
-                  </Typography>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="subtitle2" color="textSecondary">
+                      {format(new Date(item.date), 'dd/MM/yyyy')}
+                    </Typography>
+                    <Typography variant="h5" color="primary">
+                      {`R$ ${item.total.toFixed(2)}`}
+                    </Typography>
+                  </Box>
                 }
               />
             </ListItemButton>

@@ -10,7 +10,12 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { Autocomplete, Button, ButtonGroup, Card, CardActions, CardContent, Fab, FormControl, InputLabel, OutlinedInput, Typography, useMediaQuery } from "@mui/material";
+import SearchIcon from '@mui/icons-material/Search';
+import { 
+  Autocomplete, Button, ButtonGroup, Card, CardActions, CardContent, Dialog, DialogActions, 
+  DialogContent, DialogTitle, Fab, FormControl, InputLabel, OutlinedInput, Typography, useMediaQuery,
+  List, ListItem, ListItemText, ListItemSecondaryAction, InputAdornment, DialogContentText, InputBase, Paper, ListItemButton 
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -22,6 +27,7 @@ import { deleteSale, getSale, addSale, editSale } from "../../services/sale";
 import { getCustomers } from "../../services/customer";
 import Title from "../../components/Title";
 import AlertSnackbar from "../../components/AlertSnackbar";
+
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckIcon from '@mui/icons-material/Check';
 import AddIcon from '@mui/icons-material/Add';
@@ -29,6 +35,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 
 import { ptBR } from "date-fns/locale";
 import { format, parseISO } from "date-fns";
+import { getProducts } from "../../services/product";
 
 export default function SalePage() {
   const {id} = useParams();
@@ -54,6 +61,8 @@ export default function SalePage() {
   const [editMode, setEditMode] = useState(false);
   const [showAlert, setShowAlert] = useState({show: false});
   const [divHeight, setDivHeight] = useState(400);
+  
+  const [openProductDialog, setOpenProductDialog] = useState(false);
 
   useEffect(() => {    
     window.scrollTo(0, 0);
@@ -186,11 +195,10 @@ export default function SalePage() {
     }
   }
 
-  const handleClickAddItem = () => {
-    // Implemente aqui a lógica para abrir a tela de inclusão de itens e adicionar o item à venda
-    console.log("Adicionar novo item à venda");
+  const openAddProductDialog = () => {
+    setOpenProductDialog(true);
   };
-  
+
   const handleDeleteItem = (itemId) => {
     // Implemente aqui a lógica para remover o item da venda pelo seu ID
     console.log("Remover item da venda com ID:", itemId);
@@ -416,31 +424,137 @@ export default function SalePage() {
         }}
       >
         <Box sx={{ marginBottom: '4px' }}>
-          <Typography variant="body1">
+          <Typography variant="subtitle2" color="textSecondary">
             SobTotal: R$ {subtotal}
           </Typography>
         </Box>
         <Box sx={{ marginBottom: '4px' }}>
-          <Typography variant="body1">
+          <Typography variant="subtitle2" color="textSecondary">
             Desconto: R$ {discount}
           </Typography>
         </Box>
         <Box sx={{ marginBottom: '4px' }}>
-          <Typography variant="body1">
+          <Typography variant="subtitle2" color="textSecondary">
             Acréscimo: R$ {addition}
           </Typography>
         </Box>
-        <Typography variant="h5">
-          <span style={{ color: 'rgb(25, 118, 210)' }}>
-            <strong>
-              R$ {total}
-            </strong>
+        <Typography variant="h5" style={{ color: 'rgb(25, 118, 210)' }}>
+          <span>
+            Total:&nbsp; 
           </span>
+          <strong>
+            R$ {total}
+          </strong>
         </Typography>
       </Box>
     );
   };
  
+  const DialogAddItem = () => {
+    const [products, setProducts] = useState([]); // Estado para armazenar a lista de produtos
+    const [tempSearchTerm, setTempSearchTerm] = useState('');
+    const [selectedProduct, setSelectedProduct] = useState(null);
+      
+    const handleSearchButtonClick = async () => {
+      try {
+        const response = await getProducts(tempSearchTerm); // Substitua pela função que busca produtos na API
+        if (response.status === 200) {
+          setProducts(response.data); // Atualiza o estado com a lista de produtos
+        } else {
+          // Trate o caso em que a requisição não foi bem-sucedida
+          console.error('Erro ao buscar produtos');
+        }
+      } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
+      }
+    };
+  
+    const handleAddSelectedProduct = (product) => {
+      console.log(product);
+      setSelectedProduct(product); // Armazena o produto selecionado
+    };
+
+    const cancelAddProduct = () => {
+      setOpenProductDialog(false);
+    };
+  
+    const confirmAddProduct = () => {
+      console.log('product', selectedProduct)
+      
+      if (selectedProduct) {
+        const newItem = {
+          id: selectedProduct._id,
+          productDet: selectedProduct,
+          quantity: 1,
+          unitPrice: selectedProduct.price,
+          discount: 0,
+          addition: 0,
+          totalPrice: selectedProduct.price,
+        };
+  
+        setItems((prevItems) => [...prevItems, newItem]);
+        setOpenProductDialog(false);
+      }
+    };
+  
+    return (
+      <Dialog 
+        open={openProductDialog} 
+        onClose={cancelAddProduct}
+        scroll="paper"
+        maxWidth="md"
+      >
+        <DialogTitle>Selecione um item:</DialogTitle>
+        <DialogContent>
+          <Paper
+            component="form"
+            sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}
+          >
+            <InputBase
+              sx={{ ml: 1, flex: 1 }}
+              placeholder="Buscar Produto"
+              value={tempSearchTerm}
+              onChange={(e) => setTempSearchTerm(e.target.value)}
+              inputProps={{ 'aria-label': 'search products' }}
+            />
+            <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={handleSearchButtonClick}>
+              <SearchIcon />
+            </IconButton>
+          </Paper>
+          <Box mt={2} maxHeight="300px" overflow="auto">
+            {products.length === 0 ? (
+              <Typography variant="body2" align="center">
+                Nenhum dado foi encontrado.
+              </Typography>
+            ) : (
+              <List>
+                {products.map((product) => (
+                  <ListItemButton
+                    key={product.id}
+                    selected={product === selectedProduct}
+                    onClick={() => handleAddSelectedProduct(product)}
+                    // onClick={() => confirmAddProduct(product)}
+                  >
+                    <ListItemText primary={product.name} />
+                  </ListItemButton>
+                ))}
+              </List>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelAddProduct}>
+            Cancelar
+          </Button>
+          <Button onClick={confirmAddProduct} color="primary">
+            Adicionar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+  
+
   return (
     <Container component="main" maxWidth="xbl">
       <CssBaseline />
@@ -511,7 +625,10 @@ export default function SalePage() {
                   id="customer"
                   includeInputInList
                   clearOnEscape
-                  isOptionEqualToValue={(option, value) => option.id === value._id}
+                  isOptionEqualToValue={(option, value) => {
+                    // console.log(option.id, value._id)
+                    return option.id === value._id
+                  }}
                   onChange={(event, element) => {
                     // console.log(element)
                     setSale({...sale, customer: element });
@@ -528,12 +645,13 @@ export default function SalePage() {
             </Grid>            
           </Grid>
           {/* <Typography sx={{ marginTop: "16px" }}>Itens do Pedido</Typography> */}
-          {(isMobile) ? <ItemCards/> : <ItemGrid/>}        
+          {(isMobile) ? <ItemCards/> : <ItemGrid/>}
+          <DialogAddItem/>        
         </div>
       </Box>
       {(isMobile) ? <TotalizerMob/> : <Totalizer/>}
       <Fab 
-        onClick={() => handleClickAddItem()}
+        onClick={() => openAddProductDialog()}
         color="secondary" aria-label="add" 
         sx={{
           position: 'fixed',
