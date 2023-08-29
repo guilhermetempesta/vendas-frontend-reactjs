@@ -32,7 +32,7 @@ import ShoppingCartTwoToneIcon from '@mui/icons-material/ShoppingCartTwoTone';
 import ViewInArTwoToneIcon from '@mui/icons-material/ViewInArTwoTone';
 import FeedTwoToneIcon from '@mui/icons-material/FeedTwoTone';
 
-import Footer from './Footer';
+// import Footer from './Footer';
 import { AuthContext } from "../contexts/auth";
 import PeopleAltTwoToneIcon from '@mui/icons-material/PeopleAltTwoTone';
 

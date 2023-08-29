@@ -32,6 +32,33 @@ export const getProducts = async (searchTerm) => {
   }
 };
 
+export const getProductsPagination = async (page, searchTerm) => {
+  try {
+    let url = '/products';
+    
+    if (searchTerm) {
+      url += `?search=${encodeURIComponent(searchTerm)}`;
+      if (page) {
+        url += `&page=${page}&limit=10`;
+      }
+    } else {
+      if (page) {
+        url += `?page=${page}&limit=10`;
+      }
+    }
+
+    console.log(url)
+    const response = await api.get(url);
+    return response;
+  } catch (error) {
+    if (!error.response) {
+      return { networkError: 'Erro de conexão.' };
+    } else {
+      return error.response;
+    }
+  }
+};
+
 export const getProduct = async (id) => {
   try {
     const response = await api.get(`/products/${id}`);
