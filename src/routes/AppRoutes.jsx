@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 
 import { AuthProvider, AuthContext } from "../contexts/auth";
+import { CartProvider } from "../contexts/cart";
 import { clearUserData, tokenExpired } from "../commons/authVerify";
 
 import LoginPage from '../pages/LoginPage';
@@ -29,7 +30,8 @@ import ProductsPage from "../pages/ProductsPage";
 import ProductPage from "../pages/ProductPage";
 import CustomersPage from "../pages/CustomersPage";
 import CustomerPage from "../pages/CustomerPage";
-// import SaleItemPage from "../pages/SaleItemPage";
+import ReportsPage from "../pages/ReportsPage";
+import CartPage from "../pages/CartPage";
 
 const AppRoutes = () => {
 
@@ -54,36 +56,41 @@ const AppRoutes = () => {
 
   return(
     <Router>
-      <AuthProvider>
-        <Routes>
-          {/* public routes */}
-          <Route exact path="/login" element={<LoginPage/>}/>
-          <Route exact path="/reset-password" element={<ResetPasswordPage/>}/>
-          <Route exact path="/change-password/:token" element={<ChangePasswordPage/>}/>
-          <Route exact path="/verification-email/:token" element={<UserEmailVerifyPage/>}/>
-         
-          {/* private routes */}
-          <Route exact path="/" element={<Private><Layout><HomePage/></Layout></Private>}/>
-          <Route exact path="/users" element={<Private><Layout><UsersPage/></Layout></Private>}/>
-          <Route exact path="/new-user" element={<Private><Layout><UserPage/></Layout></Private>}/>
-          <Route exact path="/user/:id" element={<Private><Layout><UserPage/></Layout></Private>}/>
-          <Route exact path="/profile" element={<Private><Layout><ProfilePage/></Layout></Private>}/>
-          <Route exact path="/profile/change-password" element={<Private><Layout><ChangePasswordLoggedPage/></Layout></Private>}/>
-          <Route exact path="/customers" element={<Private><Layout><CustomersPage/></Layout></Private>}/>
-          <Route exact path="/new-customer" element={<Private><Layout><CustomerPage/></Layout></Private>}/>
-          <Route exact path="/customer/:id" element={<Private><Layout><CustomerPage/></Layout></Private>}/>
-          <Route exact path="/products" element={<Private><Layout><ProductsPage/></Layout></Private>}/>
-          <Route exact path="/new-product" element={<Private><Layout><ProductPage/></Layout></Private>}/>
-          <Route exact path="/product/:id" element={<Private><Layout><ProductPage/></Layout></Private>}/>
-          <Route exact path="/sales" element={<Private><Layout><SalesPage/></Layout></Private>}/>
-          <Route exact path="/new-sale" element={<Private><Layout><SalePage/></Layout></Private>}/>
-          <Route exact path="/sale/:id" element={<Private><Layout><SalePage/></Layout></Private>}/>
-          {/* <Route exact path="/sale/add-item" element={<Private><Layout><SaleItemPage/></Layout></Private>} /> */}
-          {/* test routes */}
-          <Route exact path="/test1" element={<Private><Layout><TestParagraph1/></Layout></Private>}/>
-          <Route exact path="/test2" element={<Private><Layout><TestParagraph2/></Layout></Private>}/>
-        </Routes>
-      </AuthProvider>
+      <CartProvider>
+        <AuthProvider>
+          <Routes>
+            {/* public routes */}
+            <Route exact path="/login" element={<LoginPage/>}/>
+            <Route exact path="/reset-password" element={<ResetPasswordPage/>}/>
+            <Route exact path="/change-password/:token" element={<ChangePasswordPage/>}/>
+            <Route exact path="/verification-email/:token" element={<UserEmailVerifyPage/>}/>
+          
+            {/* private routes */}
+            <Route exact path="/" element={<Private><Layout><HomePage/></Layout></Private>}/>
+            <Route exact path="/users" element={<Private><Layout><UsersPage/></Layout></Private>}/>
+            <Route exact path="/new-user" element={<Private><Layout><UserPage/></Layout></Private>}/>
+            <Route exact path="/user/:id" element={<Private><Layout><UserPage/></Layout></Private>}/>
+            <Route exact path="/profile" element={<Private><Layout><ProfilePage/></Layout></Private>}/>
+            <Route exact path="/profile/change-password" element={<Private><Layout><ChangePasswordLoggedPage/></Layout></Private>}/>
+            <Route exact path="/customers" element={<Private><Layout><CustomersPage/></Layout></Private>}/>
+            <Route exact path="/new-customer" element={<Private><Layout><CustomerPage/></Layout></Private>}/>
+            <Route exact path="/customer/:id" element={<Private><Layout><CustomerPage/></Layout></Private>}/>
+            <Route exact path="/products" element={<Private><Layout><ProductsPage/></Layout></Private>}/>
+            <Route exact path="/new-product" element={<Private><Layout><ProductPage/></Layout></Private>}/>
+            <Route exact path="/product/:id" element={<Private><Layout><ProductPage/></Layout></Private>}/>
+            {/* <Route exact path="/sales" element={<Private><Layout><SalesPage/></Layout></Private>}/> */}
+            <Route exact path="/new-sale" element={<Private><Layout><SalePage/></Layout></Private>}/>
+            <Route exact path="/sale/:id" element={<Private><Layout><SalePage/></Layout></Private>}/>
+            <Route exact path="/reports" element={<Private><Layout><ReportsPage/></Layout></Private>}/>
+            <Route exact path="/reports/sales" element={<Private><Layout><SalesPage/></Layout></Private>}/>
+            <Route exact path="/cart" element={<Private><Layout><CartPage/></Layout></Private>}/>
+            
+            {/* test routes */}
+            <Route exact path="/test1" element={<Private><Layout><TestParagraph1/></Layout></Private>}/>
+            <Route exact path="/test2" element={<Private><Layout><TestParagraph2/></Layout></Private>}/>
+          </Routes>
+        </AuthProvider>
+      </CartProvider>  
     </Router>
   );
 };

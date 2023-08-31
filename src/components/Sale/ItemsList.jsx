@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { getProductsPagination } from '../../services/product';
-import List from '@mui/material/List';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
@@ -11,8 +10,13 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton, InputBase, Paper, Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid } from '@mui/material';
+import { useMediaQuery } from '@mui/material';
+import { CartContext } from '../../contexts/cart';
 
 const ItemsList = () => {
+  const { addItemToCart } = useContext(CartContext);
+  const isMobile = useMediaQuery('(max-width:600px)');
+
   const [items, setItems] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -25,6 +29,8 @@ const ItemsList = () => {
   const [quantity, setQuantity] = useState(1);
   const [editingPrice, setEditingPrice] = useState(false);
   const [editedPrice, setEditedPrice] = useState('');
+  const [itemDetailsOpen, setItemDetailsOpen] = useState(false);
+  const [selectedItemDetails, setSelectedItemDetails] = useState(null);
 
   const fetchItems = useCallback(async (page, searchQuery = '') => {
     setLoading(true);
@@ -94,11 +100,16 @@ const ItemsList = () => {
   const handleConfirmAddCart = () => {
     // Lógica para adicionar item ao carrinho com a quantidade selecionada
     console.log(`Adicionado ao carrinho: ${selectedItem.name}, Quantidade: ${quantity}`);
+    
+    const newItem = {
+      id: selectedItem._id, // Use um identificador único para o item
+      name: selectedItem.name,
+      price: selectedItem.price,
+      quantity: quantity,
+    };
+  
+    addItemToCart(newItem);
     handleCloseDialog();
-  };
-
-  const handleClickInfoItem = (item) => {
-    console.log(`Informações do item: ${item.name}`);
   };
 
   const handleEditPrice = () => {
@@ -115,11 +126,16 @@ const ItemsList = () => {
     setEditingPrice(false);
   };
 
+  const handleClickInfoItem = (item) => {
+    setSelectedItemDetails(item);
+    setItemDetailsOpen(true);
+  };
+
   return (
     <div>
       <Paper component="div" style={{ display: 'flex', alignItems: 'center', padding: '8px', position: 'sticky', top: 70, zIndex: 1 }}>
         <InputBase
-          placeholder="Pesquisar"
+          placeholder="Pesquisar itens..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{ flex: 1, marginRight: '8px' }}
@@ -128,34 +144,47 @@ const ItemsList = () => {
           <SearchIcon />
         </IconButton>
       </Paper>
-      
-      <List>
-        {items.map((item) => (
-          <Card key={item._id} style={{ margin: '16px' }}>
-            <CardContent 
-              style={{ 
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column', margin: '2px', padding: '8px' 
-              }}
-            >
-              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginTop: '1px' }}>
-                <Typography variant="h6" noWrap style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
-                  {item.name}
-                </Typography>
-                <Typography variant="body1">{`R$ ${item.price.toFixed(2)}`}</Typography>
-              </div>
-              <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-                <IconButton color="primary" onClick={() => handleClickInfoItem(item)}>
-                  <InfoIcon/>
-                </IconButton>
-                <IconButton color="primary" onClick={() => handleClickAddCart(item)}>
-                  <AddShoppingCart />
-                </IconButton>
-              </div>
-            </CardContent>
-          </Card>        
-        ))}
-      </List>
-      {loading && <p>Carregando...</p>}
+
+      <div style={{ flex: 1, overflow: 'auto' }}>   
+        {/* Usando um layout de linha para dispositivos não móveis */}
+        {!isMobile ? (
+          <div>
+            {items.map((item) => (
+              <Typography key={item._id} >
+                {item.name} : R$ {item.price.toFixed(2)}
+                {/* Conteúdo do item */}
+                {/* ... */}
+              </Typography>
+            ))}
+          </div>
+        ) : (     
+          items.map((item) => (
+            <Card key={item._id} style={{ margin: '16px', backgroundColor: "#f4f4f4"}}>
+              <CardContent 
+                style={{ 
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column', margin: '2px', padding: '8px' 
+                }}
+              >
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginTop: '1px' }}>
+                  <Typography variant="h6" noWrap style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                    {item.name}
+                  </Typography>
+                  <Typography variant="body1">{`R$ ${item.price.toFixed(2)}`}</Typography>
+                </div>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                  <IconButton color="primary" onClick={() => handleClickInfoItem(item)}>
+                    <InfoIcon/>
+                  </IconButton>
+                  <IconButton color="primary" onClick={() => handleClickAddCart(item)}>
+                    <AddShoppingCart />
+                  </IconButton>
+                </div>
+              </CardContent>
+            </Card>        
+          ))
+        )}
+        {loading && <p>Carregando...</p>}
+      </div>
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
         <DialogTitle
@@ -221,6 +250,30 @@ const ItemsList = () => {
           </Button>
           <Button onClick={handleConfirmAddCart} color="primary">
             Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Diálogo para exibir detalhes do item */}
+      <Dialog open={itemDetailsOpen} onClose={() => setItemDetailsOpen(false)}>
+        <DialogTitle
+          sx={{
+            color: "rgb(235, 235, 235)",
+            bgcolor: "rgb(25, 118, 210)",
+          }}
+        >Detalhes do Item</DialogTitle>
+        {selectedItemDetails && (
+          <DialogContent>
+            <Typography variant="h6">{selectedItemDetails.name}</Typography>
+            <Typography variant="body1" component="div" style={{ whiteSpace: 'pre-wrap' }}>
+              {`Descrição: ${selectedItemDetails.description}`}
+            </Typography>
+            <Typography variant="body1">{`Preço: R$ ${selectedItemDetails.price.toFixed(2)}`}</Typography>
+          </DialogContent>
+        )}
+        <DialogActions>
+          <Button onClick={() => setItemDetailsOpen(false)} color="primary">
+            Fechar
           </Button>
         </DialogActions>
       </Dialog>

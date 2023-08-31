@@ -24,17 +24,18 @@ import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone';
 import PeopleTwoToneIcon from '@mui/icons-material/PeopleTwoTone';
 import BuildIcon from '@mui/icons-material/Build';
 import ArticleIcon from '@mui/icons-material/Article';
-import ButtonBase from '@mui/material/ButtonBase';
-import Avatar from '@mui/material/Avatar';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
-import ShoppingCartTwoToneIcon from '@mui/icons-material/ShoppingCartTwoTone';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ViewInArTwoToneIcon from '@mui/icons-material/ViewInArTwoTone';
 import FeedTwoToneIcon from '@mui/icons-material/FeedTwoTone';
+import PeopleAltTwoToneIcon from '@mui/icons-material/PeopleAltTwoTone';
+import { Badge, Menu, MenuItem } from '@mui/material';
 
 // import Footer from './Footer';
 import { AuthContext } from "../contexts/auth";
-import PeopleAltTwoToneIcon from '@mui/icons-material/PeopleAltTwoTone';
+import { CartContext } from '../contexts/cart';
 
 const drawerWidth = 240;
 
@@ -117,8 +118,8 @@ const menuItemsAdmin = [
     path: '/customers',
     imageIndex: 2
   },{
-    text: 'Vendas',
-    path: '/sales',
+    text: 'Venda',
+    path: '/new-sale',
     imageIndex: 3
   },{
     text: 'Relatórios',
@@ -145,8 +146,8 @@ const menuItemsUser = [
     path: '/customers',
     imageIndex: 2
   },{
-    text: 'Vendas',
-    path: '/sales',
+    text: 'Venda',
+    path: '/new-sale',
     imageIndex: 3
   }
 ]
@@ -167,10 +168,14 @@ export default function Layout({children}) {
   const navigate = useNavigate();
   const matches = useMediaQuery('(min-width:600px)');
   const { logout, user } = useContext(AuthContext);
+  const { cartItems, clearCart } = useContext(CartContext);
 
   const theme = useTheme();
   const [open, setOpen] = useState(matches);
   const [selectedItem, setSelectedItem] = useState('');
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const isCartMenuOpen = Boolean(anchorEl);
 
   useEffect (() => {
     setOpen(matches);
@@ -193,6 +198,33 @@ export default function Layout({children}) {
 
   const handleClickProfile = (event) => {
     navigate(`/profile`);
+  };
+
+  const handleCartMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCartMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const getNumberItemsInCart = () => {
+    const numItems = cartItems.length;
+    return (numItems > 0) ? `${numItems} item(s) incluídos` : 'Nenhum item';
+  };
+
+  const calculateTotalCartItems = () => {
+    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  const handleClickShowCart = () => {
+    handleCartMenuClose();
+    navigate(`/cart`);
+  };
+
+  const handleClickClearCart = () => {
+    handleCartMenuClose();
+    clearCart();
   };
 
   const handleLogout = (event) => {
@@ -231,7 +263,7 @@ export default function Layout({children}) {
                 element.imageIndex === 0 ? <HomeTwoToneIcon/> : (
                   element.imageIndex === 1 ? <ViewInArTwoToneIcon/> : (
                     element.imageIndex === 2 ? <PeopleTwoToneIcon/> : ( 
-                      element.imageIndex === 3 ? <ShoppingCartTwoToneIcon/> : (
+                      element.imageIndex === 3 ? <AddShoppingCartIcon/> : (
                         element.imageIndex === 4 ? <FeedTwoToneIcon/> : (
                           element.imageIndex === 5 ? <PeopleAltTwoToneIcon/> : <BuildIcon/>
                         )
@@ -296,6 +328,32 @@ export default function Layout({children}) {
     )      
   }; 
 
+  const renderCartMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      id={'cart-menu'}
+      keepMounted
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      open={isCartMenuOpen}
+      onClose={handleCartMenuClose}
+    >
+      {/* Div com informações adicionais */}
+      <div style={{ padding: '16px', borderBottom: '1px solid #ccc' }}>
+        <Typography variant="body1">{getNumberItemsInCart()}</Typography>
+        <Typography variant="h6" color="blue">R$ {calculateTotalCartItems().toFixed(2)}</Typography>
+      </div>      
+      <MenuItem onClick={handleClickShowCart}>Exibir</MenuItem>
+      <MenuItem onClick={handleClickClearCart}>Limpar</MenuItem>
+    </Menu>
+  );
+
 
   return (
     <Box
@@ -326,16 +384,32 @@ export default function Layout({children}) {
           <Typography variant="h6" noWrap component="div" flexGrow="1">
             Disk Embalagens
           </Typography>
-          <Avatar
-            component={ButtonBase}
-            onClick={(event) => { handleClickProfile(event) }}
-            sx={{ 
-              bgcolor: "rgb(235,235,235)",
-              color: 'rgb(25,118,210)' 
-            }}
-          >
-            <PersonIcon sx={{ fontSize: 30 }}/>
-          </Avatar>
+          <Box >
+            <IconButton 
+              size="large" 
+              aria-label="menu cart"
+              aria-haspopup="true"
+              onClick={handleCartMenuOpen} 
+              color="inherit">
+              <Badge 
+                badgeContent={cartItems.length} 
+                color="error"
+              >
+                <ShoppingCartIcon />
+              </Badge>
+            </IconButton>
+            <IconButton
+              size="large"
+              color="inherit"
+              aria-label="account of current user"
+              edge="end"
+              onClick={(event) => { handleClickProfile(event) }}
+            >
+              <Badge badgeContent={0} color="error">
+                <PersonIcon />
+              </Badge>
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
@@ -370,7 +444,8 @@ export default function Layout({children}) {
           {children}
         </Box>  
         {/* <Footer/> */}
-      </Box>     
+      </Box>
+      {renderCartMenu}     
     </Box>
   );
 }

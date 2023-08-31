@@ -1,14 +1,17 @@
-import React, { useState, useEffect, createContext } from "react";
+import React, { useState, useEffect, createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { clearUserData } from "../commons/authVerify";
 import { api } from '../services/api'
 // import { apiLogin, apiLogout, apiResetPassword, apiValidateToken } from '../services/auth'
 import { apiLogin, apiResetPassword } from '../services/auth'
+import { CartContext } from "./cart";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
   const navigate = useNavigate();
+  const { clearCart } = useContext(CartContext);
+  
   const [user, setUser] = useState(null);  
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -55,7 +58,8 @@ export const AuthProvider = ({children}) => {
       // const refreshToken = localStorage.getItem("refreshToken");
       // await apiLogout(refreshToken);      
     // }
-    clearUserData(); 
+    clearUserData();
+    clearCart(); 
     setUser(null);
     setErrorMessage(null);
     navigate("/login");

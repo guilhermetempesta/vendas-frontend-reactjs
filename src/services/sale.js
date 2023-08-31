@@ -22,19 +22,19 @@ export const getSale = async (id) => {
   } 
 }
 
-export const addSale = async (user) => {
+export const addSale = async (sale) => {
   try {
-    delete user.id;
-    const response = await api.post(`/sales`, user);
+    delete sale.id;
+    const response = await api.post(`/sales`, sale);
     return response;
   } catch(error) {
     return error.response;
   } 
 }
 
-export const editSale = async (user) => {
+export const editSale = async (sale) => {
   try {
-    const response = await api.put(`/sales/${user.id}`, user);
+    const response = await api.put(`/sales/${sale.id}`, sale);
     return response;
   } catch(error) {
     return error.response;
