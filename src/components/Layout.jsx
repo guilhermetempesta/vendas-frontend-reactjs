@@ -54,7 +54,8 @@ const closedMixin = (theme) => ({
     duration: theme.transitions.duration.leavingScreen,
   }),
   overflowX: 'hidden',
-  width: `calc(${theme.spacing(7)} + 1px)`,
+  width: 0,
+  // width: `calc(${theme.spacing(7)} + 1px)`,
   [theme.breakpoints.up('sm')]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
@@ -166,20 +167,20 @@ const menuItemsCommom = [
 
 export default function Layout({children}) {
   const navigate = useNavigate();
-  const matches = useMediaQuery('(min-width:600px)');
+  const isDesktop = useMediaQuery('(min-width:600px)');
   const { logout, user } = useContext(AuthContext);
-  const { cartItems, clearCart } = useContext(CartContext);
+  const { cartItems, clearCart, getCartTotal } = useContext(CartContext);
 
   const theme = useTheme();
-  const [open, setOpen] = useState(matches);
+  const [open, setOpen] = useState(isDesktop);
   const [selectedItem, setSelectedItem] = useState('');
 
   const [anchorEl, setAnchorEl] = useState(null);
   const isCartMenuOpen = Boolean(anchorEl);
 
   useEffect (() => {
-    setOpen(matches);
-  }, [matches]);
+    setOpen(isDesktop);
+  }, [isDesktop]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -191,7 +192,7 @@ export default function Layout({children}) {
 
   const handleListItemClick = (event, item) => {
     setSelectedItem(item);
-    if (!matches) {
+    if (!isDesktop) {
       handleDrawerClose()
     }
   };
@@ -214,7 +215,7 @@ export default function Layout({children}) {
   };
 
   const calculateTotalCartItems = () => {
-    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    return getCartTotal();
   };
 
   const handleClickShowCart = () => {
@@ -349,18 +350,14 @@ export default function Layout({children}) {
         <Typography variant="body1">{getNumberItemsInCart()}</Typography>
         <Typography variant="h6" color="blue">R$ {calculateTotalCartItems().toFixed(2)}</Typography>
       </div>      
-      <MenuItem onClick={handleClickShowCart}>Exibir</MenuItem>
-      <MenuItem onClick={handleClickClearCart}>Limpar</MenuItem>
+      <MenuItem onClick={handleClickShowCart}>Ver carrinho</MenuItem>
+      <MenuItem onClick={handleClickClearCart}>Limpar itens</MenuItem>
     </Menu>
   );
 
 
   return (
-    <Box
-      sx={{ 
-        display: (matches) ? 'flex' : 'flexbox'
-      }}
-    >   
+    <Box sx={{ display: (isDesktop) ? 'flex' : 'flexbox' }} >   
       <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar 
@@ -381,37 +378,43 @@ export default function Layout({children}) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" flexGrow="1">
+          {/* <Typography variant="h6" noWrap component="div" flexGrow="1"> */}
+          <Typography
+              component="h1"
+              variant="h6"
+              color="inherit"
+              noWrap
+              sx={{ flexGrow: 1 }}
+            >
             Disk Embalagens
           </Typography>
-          <Box >
-            <IconButton 
-              size="large" 
-              aria-label="menu cart"
-              aria-haspopup="true"
-              onClick={handleCartMenuOpen} 
-              color="inherit">
-              <Badge 
-                badgeContent={cartItems.length} 
-                color="error"
-              >
-                <ShoppingCartIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              size="large"
-              color="inherit"
-              aria-label="account of current user"
-              edge="end"
-              onClick={(event) => { handleClickProfile(event) }}
+          <IconButton 
+            size="large" 
+            aria-label="menu cart"
+            aria-haspopup="true"
+            onClick={handleCartMenuOpen} 
+            color="inherit">
+            <Badge 
+              badgeContent={cartItems.length} 
+              color="error"
             >
-              <Badge badgeContent={0} color="error">
-                <PersonIcon />
-              </Badge>
-            </IconButton>
-          </Box>
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
+          <IconButton
+            size="large"
+            color="inherit"
+            aria-label="account of current user"
+            edge="end"
+            onClick={(event) => { handleClickProfile(event) }}
+          >
+            <Badge badgeContent={0} color="error">
+              <PersonIcon />
+            </Badge>
+          </IconButton>
         </Toolbar>
       </AppBar>
+      
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
@@ -423,7 +426,7 @@ export default function Layout({children}) {
       </Drawer>
       <Box 
         component="main"
-        onClick={(!matches) ? handleDrawerClose : null}
+        onClick={(!isDesktop) ? handleDrawerClose : null}
         sx={{ 
           flexGrow: 1, 
           p: 3,
@@ -431,14 +434,14 @@ export default function Layout({children}) {
           flexDirection: 'column',
           minHeight: '100vh',
           padding: 0,
-          paddingLeft: matches ? '0' : '65px' 
         }}
       >
         <DrawerHeader />
         <Box
           sx={{
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            // backgroundColor: "#f4f4f4" // testar cores
           }}
         >
           {children}

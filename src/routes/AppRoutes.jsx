@@ -32,6 +32,7 @@ import CustomersPage from "../pages/CustomersPage";
 import CustomerPage from "../pages/CustomerPage";
 import ReportsPage from "../pages/ReportsPage";
 import CartPage from "../pages/CartPage";
+import CartCheckoutPage from "../pages/CartCheckoutPage";
 
 const AppRoutes = () => {
 
@@ -84,7 +85,7 @@ const AppRoutes = () => {
             <Route exact path="/reports" element={<Private><Layout><ReportsPage/></Layout></Private>}/>
             <Route exact path="/reports/sales" element={<Private><Layout><SalesPage/></Layout></Private>}/>
             <Route exact path="/cart" element={<Private><Layout><CartPage/></Layout></Private>}/>
-            
+            <Route exact path="/cart-checkout" element={<Private><Layout><CartCheckoutPage/></Layout></Private>}/>
             {/* test routes */}
             <Route exact path="/test1" element={<Private><Layout><TestParagraph1/></Layout></Private>}/>
             <Route exact path="/test2" element={<Private><Layout><TestParagraph2/></Layout></Private>}/>

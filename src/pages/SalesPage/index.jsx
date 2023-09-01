@@ -157,8 +157,8 @@ export default function SalesPage() {
   };
 
   const handleItemClick = (item) => {
-    const id = item.id;
-    navigate(`/sale/${id}`);
+    // const id = item.id;
+    // navigate(`/sale/${id}`);
   };
 
   const SalesList = () => {
@@ -222,7 +222,7 @@ export default function SalesPage() {
       >
         { (isMobile) ? <SalesList/> : <SalesGrid/> }  
       </Box>
-      <Fab 
+      {/* <Fab 
         onClick={() => handleClickAdd()}
         color="secondary" aria-label="add" 
         sx={{
@@ -232,7 +232,7 @@ export default function SalesPage() {
         }}
       >
         <AddIcon />
-      </Fab>
+      </Fab> */}
       {
         (showAlert.show === true) &&  
         <AlertSnackbar setShowAlert={setShowAlert} show={showAlert.show} message={showAlert.message} severity={showAlert.severity} />

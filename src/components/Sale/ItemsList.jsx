@@ -133,7 +133,7 @@ const ItemsList = () => {
 
   return (
     <div>
-      <Paper component="div" style={{ display: 'flex', alignItems: 'center', padding: '8px', position: 'sticky', top: 70, zIndex: 1 }}>
+      <Paper component="div" style={{ display: 'flex', alignItems: 'center', padding: '8px', position: 'sticky', top: 65, zIndex: 1 }}>
         <InputBase
           placeholder="Pesquisar itens..."
           value={search}
@@ -146,43 +146,61 @@ const ItemsList = () => {
       </Paper>
 
       <div style={{ flex: 1, overflow: 'auto' }}>   
-        {/* Usando um layout de linha para dispositivos não móveis */}
-        {!isMobile ? (
-          <div>
-            {items.map((item) => (
-              <Typography key={item._id} >
-                {item.name} : R$ {item.price.toFixed(2)}
-                {/* Conteúdo do item */}
-                {/* ... */}
-              </Typography>
-            ))}
-          </div>
-        ) : (     
-          items.map((item) => (
-            <Card key={item._id} style={{ margin: '16px', backgroundColor: "#f4f4f4"}}>
-              <CardContent 
-                style={{ 
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column', margin: '2px', padding: '8px' 
-                }}
-              >
-                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginTop: '1px' }}>
-                  <Typography variant="h6" noWrap style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
-                    {item.name}
-                  </Typography>
-                  <Typography variant="body1">{`R$ ${item.price.toFixed(2)}`}</Typography>
+        {items.map((item) => (
+          (isMobile) ? 
+          <Card key={item._id} style={{ margin: '16px', backgroundColor: "#f4f4f4"}}>
+            <CardContent 
+              style={{ 
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column', margin: '2px', padding: '8px' 
+              }}
+            >
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginTop: '1px' }}>
+                <Typography variant="h6" noWrap style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                  {item.name}
+                </Typography>
+                <Typography variant="body1">{`R$ ${item.price.toFixed(2)}`}</Typography>
+              </div>
+              <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                <IconButton color="primary" onClick={() => handleClickInfoItem(item)}>
+                  <InfoIcon/>
+                </IconButton>
+                <IconButton color="primary" onClick={() => handleClickAddCart(item)}>
+                  <AddShoppingCart />
+                </IconButton>
+              </div>
+            </CardContent>
+          </Card>        
+          :
+          <Card key={item._id} style={{ margin: '1px', backgroundColor: "#f4f4f4"}}>
+            <CardContent 
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                flexDirection: 'row', // Alterado para row para alinhar horizontalmente
+                margin: '2px', 
+                padding: '8px' 
+              }}
+            >
+              <div>
+                <Typography variant="h6" noWrap style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                  {item.name}
+                </Typography>
+              </div>
+              <div style={{ display: 'flex' }}>
+                <div style={{ paddingTop: '8px', paddingRight: '32px' }}>
+                  <Typography variant="body1" style={{ marginLeft: '8px' }}>{`R$ ${item.price.toFixed(2)}`}</Typography>
                 </div>
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-                  <IconButton color="primary" onClick={() => handleClickInfoItem(item)}>
-                    <InfoIcon/>
-                  </IconButton>
-                  <IconButton color="primary" onClick={() => handleClickAddCart(item)}>
-                    <AddShoppingCart />
-                  </IconButton>
-                </div>
-              </CardContent>
-            </Card>        
-          ))
-        )}
+                <IconButton color="primary" onClick={() => handleClickInfoItem(item)}>
+                  <InfoIcon/>
+                </IconButton>
+                <IconButton color="primary" onClick={() => handleClickAddCart(item)}>
+                  <AddShoppingCart />
+                </IconButton>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
         {loading && <p>Carregando...</p>}
       </div>
 

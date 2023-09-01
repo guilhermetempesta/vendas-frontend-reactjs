@@ -4,10 +4,12 @@ import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import AlertSnackbar from "../../components/AlertSnackbar";
 import Title from "../../components/Title";
-import { Card, CardActionArea, CardContent } from "@mui/material";
+import { Button, Card, CardActionArea, CardContent } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export default function ReportsPage (props) {
   const { message } = props;
+  const navigate = useNavigate();
   const [ showAlert, setShowAlert ] = useState({show: false});
 
   useEffect(() => {    
@@ -17,6 +19,10 @@ export default function ReportsPage (props) {
     }
   }, [message]);
   
+  const handleClickSales = () => {
+    navigate('/reports/sales');
+  };
+
   return (
     <Container component="main" maxWidth="xl">
       <CssBaseline />        
@@ -24,10 +30,14 @@ export default function ReportsPage (props) {
       <Box>
         <Card>
           <CardContent>
-            Vendas
+            <h2>Vendas</h2>
           </CardContent>
           <CardActionArea>
-            Actions...
+            <Button
+              onClick={() => handleClickSales()}
+            >
+              Visualizar
+            </Button>  
           </CardActionArea>
         </Card>
       </Box>
