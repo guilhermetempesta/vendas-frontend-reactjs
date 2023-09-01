@@ -32,9 +32,13 @@ export default function HomePage (props) {
 
     let saleItems = [];
     cartItems.forEach(element => {
-      const item = element;
-      item.unitPrice = item.price;
-      item.totalPrice = item.quantity * item.price;
+      const item = {};
+      item.product = element.id;
+      item.quantity = element.quantity;
+      item.unitPrice = element.price;
+      item.discount = 0;
+      item.addition = 0;
+      item.totalPrice = element.quantity * element.price;
       saleItems.push(item);
     });
 
@@ -49,8 +53,9 @@ export default function HomePage (props) {
       total: subTotal,
       items: saleItems
     };
-
-
+ 
+    console.log(sale);
+    
     const statusSuccess = [200, 201, 204]; 
     const statusWarning = [400, 403, 405];
     
@@ -58,8 +63,8 @@ export default function HomePage (props) {
     
     if (statusSuccess.includes(response.status)) {      
       setShowAlert({show: true, message: 'Venda realizada com sucesso.', severity: 'success'});
-      clearCart();
-      navigate('/');
+      clearCart();      
+      setTimeout(() => navigate('/'), 2000);
       return;  
     } 
 

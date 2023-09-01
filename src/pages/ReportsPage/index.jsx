@@ -4,7 +4,7 @@ import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import AlertSnackbar from "../../components/AlertSnackbar";
 import Title from "../../components/Title";
-import { Button, Card, CardActionArea, CardContent } from "@mui/material";
+import { Button, Card, CardContent } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 export default function ReportsPage (props) {
@@ -31,14 +31,12 @@ export default function ReportsPage (props) {
         <Card>
           <CardContent>
             <h2>Vendas</h2>
-          </CardContent>
-          <CardActionArea>
             <Button
               onClick={() => handleClickSales()}
             >
               Visualizar
-            </Button>  
-          </CardActionArea>
+            </Button>
+          </CardContent>
         </Card>
       </Box>
       {
