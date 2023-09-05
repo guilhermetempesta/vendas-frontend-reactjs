@@ -62,9 +62,11 @@ export default function HomePage (props) {
     const response = await addSale(sale);
     
     if (statusSuccess.includes(response.status)) {      
-      setShowAlert({show: true, message: 'Venda realizada com sucesso.', severity: 'success'});
-      clearCart();      
-      setTimeout(() => navigate('/'), 2000);
+      setShowAlert({show: true, message: 'Venda realizada com sucesso.', severity: 'success'});      
+      setTimeout(() => {
+        clearCart();
+        navigate('/');
+      }, 2000);
       return;  
     } 
 

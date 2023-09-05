@@ -59,3 +59,18 @@ export const formatDatePtBr = (date) => {
   const formatDate = new Date(date);
   return formatDate.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
 };
+
+export const currentDate = () => {
+  const currentDate = new Date();
+  currentDate.setTime(currentDate.getTime() - 3 * 60 * 60 * 1000);
+  console.log('currentDate', currentDate);
+  return currentDate;
+}
+
+export const firstDayOfMonth = () => {
+  const now = currentDate();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+  console.log('firstDayOfMonth', firstDay)
+  return firstDay;
+};
+  

@@ -1,8 +1,28 @@
 import { api } from './api'
 
-export const getSales = async () => {
+export const getSales = async (filters) => {
   try {
-    const response = await api.get('/sales');
+    console.log('filters:',filters);
+    const queryParams = [];
+    let query = null;
+
+    if (filters) {
+      if (filters.initialDate) {
+        queryParams.push(`initialDate=${filters.initialDate}`);
+      }
+      if (filters.finalDate) {
+        queryParams.push(`finalDate=${filters.finalDate}`);
+      }
+      if (filters.customer !== '') {
+        queryParams.push(`customer=${filters.customer}`);
+      }
+      query = queryParams.join('&');
+    }
+    
+    console.log('query:', query);
+
+    const response = (query) ? await api.get(`/sales?${query}`) : await api.get('/sales');
+    // const response = await api.get('/sales');
     return response;
   } catch(error) {
     if (!error.response) {
