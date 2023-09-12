@@ -27,7 +27,6 @@ export default function SalePage() {
       >
         <ItemsList/>
       </Box>
-      {/* <ItemsList/> */}
       {
         (showAlert.show === true) &&  
         <AlertSnackbar setShowAlert={setShowAlert} show={showAlert.show} message={showAlert.message} severity={showAlert.severity} />

@@ -11,7 +11,7 @@ const StyledDiv = styled.div`
   overflow: hidden;
   width: 100%;
   height: 100%;
-  background: rgb(230,230,230);
+  // background: rgb(230,230,230);
 `;
 
 const Paragraph = styled.p`

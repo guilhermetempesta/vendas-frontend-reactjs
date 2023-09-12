@@ -2,7 +2,6 @@ import { api } from './api'
 
 export const getSales = async (filters) => {
   try {
-    console.log('filters:',filters);
     const queryParams = [];
     let query = null;
 

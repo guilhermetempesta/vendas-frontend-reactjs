@@ -14,7 +14,7 @@ export default function SalesPage() {
   return (
     <Container component="main" maxWidth="xbl" height="100%">
       <CssBaseline />        
-      <SalesTable></SalesTable>
+      <SalesTable/>
     </Container>
   );
 }

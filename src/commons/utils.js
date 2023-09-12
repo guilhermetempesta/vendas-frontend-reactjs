@@ -63,14 +63,15 @@ export const formatDatePtBr = (date) => {
 export const currentDate = () => {
   const currentDate = new Date();
   currentDate.setTime(currentDate.getTime() - 3 * 60 * 60 * 1000);
-  console.log('currentDate', currentDate);
   return currentDate;
 }
 
 export const firstDayOfMonth = () => {
   const now = currentDate();
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-  console.log('firstDayOfMonth', firstDay)
   return firstDay;
 };
   
+export const statusSuccess = [200, 201, 204]; 
+export const statusWarning = [400, 403, 405];
+    

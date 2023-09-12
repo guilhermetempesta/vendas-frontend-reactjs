@@ -32,28 +32,20 @@ import { currentDate, firstDayOfMonth, formatDatePtBr } from '../../commons/util
 import { useNavigate } from "react-router-dom";
 import { clearUserData } from "../../commons/authVerify";
 
-import AlertSnackbar from "../AlertSnackbar";
-import Title from "../../components/Title";
-
-// import {
-//   Document,
-//   Page,
-//   Text,
-//   View,
-//   StyleSheet,
-//   PDFViewer,
-// } from "@react-pdf/renderer";
-
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import PDFGenerator from "../PDFGenerator";
+
+import AlertSnackbar from "../AlertSnackbar";
+import Title from "../Title";
 
 export default function SalesTable() {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width:600px)');
   
   const [showAlert, setShowAlert] = useState({show: false});
+  const [isLoading, setIsLoading] = useState(false);
   const [rows, setRows] = useState([]);
-  const [openFilterDialog, setOpenFilterDialog] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [filters, setFilters] = useState({
     initialDate: firstDayOfMonth().toISOString().split('T')[0],
     finalDate: currentDate().toISOString().split('T')[0],
@@ -64,9 +56,9 @@ export default function SalesTable() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    console.log('useEffect')
-    
+
     const loadSales = async () => {
+      setIsLoading(true);
       const response = await getSales(filters);
       console.log(response);
       
@@ -83,125 +75,33 @@ export default function SalesTable() {
       if (response.status === 200) {
         setShowAlert({show: false, message: response.data.message, severity: 'success'});
         setRows(response.data);
-      };                    
+      };
+
+      setIsLoading(false);
     };
+
+    console.log('useEffect')
     loadSales(navigate, filters);
   }, [navigate, filters]);
   
   const handleFilterClick = () => {
-    console.log('filters', filters)
     setTemporaryFilters({ ...filters });
-    setOpenFilterDialog(true);
+    setOpenDialog(true);
   };
-
-  const data = [
-    { id: 1, text: "Item 1" },
-    { id: 2, text: "Item 2" },
-    { id: 3, text: "Item 3" },
-  ];
-
-  // const handleExportToPDF = () => {
-  //   const salesData = rows.map((row) => ({
-  //     id: row.code,
-  //     code: row.code,
-  //     date: formatDatePtBr(row.date),
-  //     customer: row.customer.name,
-  //     total: row.total.toLocaleString("pt-BR", {
-  //       minimumFractionDigits: 2,
-  //       maximumFractionDigits: 2,
-  //     }),
-  //   }));
-    
-  //   const MyDocument = () => (
-  //     <Document>
-  //       <Page>
-  //         <Text>Vendas</Text>
-  //         <View>
-  //           <Table>
-  //             <TableHead>
-  //               <TableRow>
-  //                 <TableCell>Código</TableCell>
-  //                 <TableCell>Data</TableCell>
-  //                 <TableCell>Cliente</TableCell>
-  //                 <TableCell align="right">Valor (R$)</TableCell>
-  //               </TableRow>
-  //             </TableHead>
-  //             <TableBody>
-  //               {salesData.map((sale) => (
-  //                 <TableRow key={sale.id}>
-  //                   <TableCell>{sale.code}</TableCell>
-  //                   <TableCell>{sale.date}</TableCell>
-  //                   <TableCell>{sale.customer}</TableCell>
-  //                   <TableCell align="right">{sale.total}</TableCell>
-  //                 </TableRow>
-  //               ))}
-  //             </TableBody>
-  //           </Table>
-  //         </View>
-  //       </Page>
-  //     </Document>
-  //   );
-
-  //   // Use PDFViewer para renderizar o documento PDF
-  //   const pdfViewer = (
-  //     <PDFViewer>
-  //       <MyDocument />
-  //     </PDFViewer>
-  //   );
-
-  //   console.log(pdfViewer);
-
-  //   // Converta o PDFViewer para Blob e abra-o em uma nova janela
-  //   const blob = new Blob([pdfViewer], { type: "application/pdf" });
-    
-  //   console.log(blob);  
-    
-  //   const blobUrl = URL.createObjectURL(blob);
-  //   window.open(blobUrl);
-  // };
-
-  // const handleExportToPDF = () => {
-    
-  //   // Defina a função para criar o documento PDF
-  //   const MyDocument = () => (
-  //     <Document>
-  //       <Page>
-  //         <Text>Vendas</Text>
-  //       </Page>
-  //     </Document>
-  //   );
-
-  //   // Renderize o documento PDF com PDFViewer
-  //   const pdfViewer = (
-  //     <PDFViewer width="100%" height="500px">
-  //       <MyDocument />
-  //     </PDFViewer>
-  //   );
-
-  //     // Converta o PDFViewer para Blob e abra-o em uma nova janela
-  //   const blob = new Blob([pdfViewer], { type: "application/pdf" });
-    
-  //   console.log(blob);  
-    
-  //   const blobUrl = URL.createObjectURL(blob);
-  //   window.open(blobUrl);
-  // };
-
+  
   const handleFilterApply = () => {
-    setOpenFilterDialog(false);
+    setOpenDialog(false);
     const filtersApplied =
       dialogFilters.initialDate.split('T')[0] !== firstDayOfMonth().toISOString().split('T')[0] ||
       dialogFilters.finalDate.split('T')[0] !== currentDate().toISOString().split('T')[0] ||
       dialogFilters.customer !== '';
 
     setHasFilters(filtersApplied);
-
-    console.log('temporaryflters:' ,dialogFilters)
     setFilters({ ...dialogFilters });
   };
 
   const handleFilterCancel = () => {
-    setOpenFilterDialog(false);
+    setOpenDialog(false);
   };
 
   const handleFilterClear = () => {
@@ -242,7 +142,7 @@ export default function SalesTable() {
         </TableRow>
         <TableRow>
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
-            <Collapse in={open} timeout="auto" unmountOnExit>
+            <Collapse in={open} timeout="auto" unmountOnExit >
               <Box sx={{ margin: 1 }}>
                 <Typography variant="h6" gutterBottom component="div">
                   Itens
@@ -336,30 +236,22 @@ export default function SalesTable() {
     <div>
       <Title>
         <h2 style={{marginBottom: '4px'}}>Vendas</h2>
+        {(!isLoading) &&
         <span>
           <IconButton
             onClick={handleFilterClick}
             color="primary"
           >
-            <Badge badgeContent={hasFilters ? "!" : null} color="error"> {/* Badge condicional */}
+            <Badge badgeContent={hasFilters ? "!" : null} color="warning"> 
               <FilterListIcon />
             </Badge>
           </IconButton>
-          {/* <IconButton
-            onClick={handleExportToPDF}
-            color="primary"
-            aria-label="Exportar para PDF"
-            style={{ margin: "16px" }}
-          >
-            <SaveAltIcon />
-          </IconButton> */}
           <PDFDownloadLink document={<PDFGenerator data={rows}/>} fileName="Vendas.pdf">  
-            {({ loading }) =>
-              loading ? (
+            {({ loadingReport }) =>
+              loadingReport ? (
                 <CircularProgress />
               ) : (
                 <IconButton
-                  // onClick={handleExportToPDF}
                   color="primary"
                   aria-label="Exportar para PDF"
                   style={{ margin: "16px" }}
@@ -369,92 +261,108 @@ export default function SalesTable() {
               )
             }
           </PDFDownloadLink>
-        </span>  
+        </span>}  
       </Title>
-      <TableContainer component={Paper}>
-        <Table aria-label="collapsible table">
-          <TableHead sx={{bgcolor: '#f4f4f4'}}>
-            <TableRow>
-              <TableCell />
-              {(!isMobile) && <TableCell>Código</TableCell>}
-              <TableCell>Data</TableCell>
-              <TableCell>Cliente</TableCell>
-              <TableCell align="right">Valor&nbsp;(R$)</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => (
-              <Row key={row.code} row={row} />
-            ))}
-          </TableBody>
-          <TableFooter>
-            <SumaryTable/>
-          </TableFooter>
-        </Table>
-      </TableContainer>
-      <Dialog open={openFilterDialog} onClose={handleFilterCancel}>
-      <DialogTitle
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          color: 'rgb(235, 235, 235)',
-          bgcolor: 'rgb(25, 118, 210)',
-          padding: '16px', 
-        }}
-      >
-        Filtros
-        <FilterListIcon />
-      </DialogTitle>
-        <DialogContent>
-        <Box mb={2} sx={{ marginTop: '16px' }}>
-          <TextField
-            label="Data Inicial"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={dialogFilters.initialDate.split('T')[0]}
-            onChange={(e) =>
-              setTemporaryFilters({ ...dialogFilters, initialDate: e.target.value })
-            }
-          />
-        </Box>
-        <Box mb={2}>
-          <TextField
-            label="Data Final"
-            type="date"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={dialogFilters.finalDate.split('T')[0]}
-            onChange={(e) =>
-              setTemporaryFilters({ ...dialogFilters, finalDate: e.target.value })
-            }
-          />
-        </Box>
-        <Box>
-          <TextField
-            label="Cliente"
-            value={dialogFilters.customer}
-            onChange={(e) =>
-              setTemporaryFilters({ ...dialogFilters, customer: e.target.value })
-            }
-          />
-        </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleFilterClear} color="primary">
-            Limpar
-          </Button>
-          <Button onClick={handleFilterCancel} color="primary">
-            Voltar
-          </Button>
-          <Button onClick={handleFilterApply} color="primary">
-            Aplicar
-          </Button>
-        </DialogActions>
-      </Dialog>      
+      {(isLoading) ? (
+        <div
+          style={{
+            height: '70vh',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}  
+        >
+          <CircularProgress />
+        </div>
+      ) : (
+      <>
+        <TableContainer component={Paper}>
+          <Table aria-label="collapsible table">
+            <TableHead sx={{bgcolor: '#f4f4f4'}}>
+              <TableRow>
+                <TableCell />
+                {(!isMobile) && <TableCell>Código</TableCell>}
+                <TableCell>Data</TableCell>
+                <TableCell>Cliente</TableCell>
+                <TableCell align="right">Valor&nbsp;(R$)</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.map((row, index) => (
+                <Row key={index} row={row} />
+              ))}
+            </TableBody>
+            <TableFooter>
+              <SumaryTable/>
+            </TableFooter>
+          </Table>
+        </TableContainer>
+        <Dialog open={openDialog} onClose={handleFilterCancel}>
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            color: 'rgb(235, 235, 235)',
+            bgcolor: 'rgb(25, 118, 210)',
+            padding: '16px', 
+          }}
+        >
+          Filtros
+          <FilterListIcon />
+        </DialogTitle>
+          <DialogContent>
+          <Box mb={2} sx={{ marginTop: '16px' }}>
+            <TextField
+              label="Data Inicial"
+              type="date"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              value={dialogFilters.initialDate.split('T')[0]}
+              onChange={(e) =>
+                setTemporaryFilters({ ...dialogFilters, initialDate: e.target.value })
+              }
+            />
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label="Data Final"
+              type="date"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              value={dialogFilters.finalDate.split('T')[0]}
+              onChange={(e) =>
+                setTemporaryFilters({ ...dialogFilters, finalDate: e.target.value })
+              }
+            />
+          </Box>
+          <Box>
+            <TextField
+              label="Cliente"
+              value={dialogFilters.customer}
+              onChange={(e) =>
+                setTemporaryFilters({ ...dialogFilters, customer: e.target.value })
+              }
+            />
+          </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleFilterClear} color="primary">
+              Limpar
+            </Button>
+            <Button onClick={handleFilterCancel} color="primary">
+              Voltar
+            </Button>
+            <Button onClick={handleFilterApply} color="primary">
+              Aplicar
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </>
+      )}      
       {
         (showAlert.show === true) &&  
         <AlertSnackbar setShowAlert={setShowAlert} show={showAlert.show} message={showAlert.message} severity={showAlert.severity} />

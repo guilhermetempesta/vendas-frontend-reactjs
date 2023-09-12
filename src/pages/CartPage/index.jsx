@@ -29,6 +29,11 @@ export default function CartPage() {
   };
 
   const handleClickCheckoutCart = () => {
+    if (cartItems.length === 0) {
+      setShowAlert({show: true, message: 'O carrinho está vazio!', severity: 'warning'});
+      return
+    }
+    
     navigate('/cart-checkout');
   };
 
@@ -146,7 +151,6 @@ export default function CartPage() {
                       </Button>
                     </div>
                   </div>
-
                 </Box>
               </div>
             ) : (
@@ -174,14 +178,6 @@ export default function CartPage() {
                         </Button>
                       </Stack>
                     </Box>
-
-                    {/* <Button
-                      variant="contained"
-                      onClick={() => handleClickCheckoutCart()}
-                      sx={{ mt: 1, mx: 1 }}
-                    >
-                      Finalizar a venda
-                    </Button> */}
                   </div>
                 </Box>
               </div>
