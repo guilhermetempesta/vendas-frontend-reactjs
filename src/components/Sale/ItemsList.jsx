@@ -171,7 +171,7 @@ const ItemsList = () => {
             </CardContent>
           </Card>        
           :
-          <Card key={item._id} style={{borderRadius: 0, margin: '1px', backgroundColor: "#f4f4f4"}}>
+          <Card key={item._id} style={{borderRadius: 0, margin: '1px', backgroundColor: "#f6f6f6"}}>
             <CardContent 
               style={{ 
                 display: 'flex', 
