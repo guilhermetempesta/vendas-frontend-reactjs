@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import PropTypes from 'prop-types';
 
 import { TableFooter, useMediaQuery } from "@mui/material";
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
-import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -21,14 +20,13 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
-
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-import { getSales } from "../../services/sale";
-import { currentDate, firstDayOfMonth, formatDatePtBr } from '../../commons/utils';
+import { deleteSale, getSales } from "../../services/sale";
+import { currentDate, firstDayOfMonth, formatDatePtBr, isWithinDateLimit, statusSuccess, statusWarning } from '../../commons/utils';
 import { useNavigate } from "react-router-dom";
 import { clearUserData } from "../../commons/authVerify";
 
@@ -37,15 +35,22 @@ import PDFGenerator from "../PDFGenerator";
 
 import AlertSnackbar from "../AlertSnackbar";
 import Title from "../Title";
+import { AuthContext } from "../../contexts/auth";
+import ConfirmationModal from "../ConfirmationModal";
 
-export default function SalesTable() {
+
+export default function SalesDetailTable() {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width:600px)');
+  const { user } = useContext(AuthContext);
   
   const [showAlert, setShowAlert] = useState({show: false});
   const [isLoading, setIsLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [rows, setRows] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openViewDialog, setOpenViewDialog] = useState(false);
+  const [selectedSale, setSelectedSale] = useState(null);
   const [filters, setFilters] = useState({
     initialDate: firstDayOfMonth().toISOString().split('T')[0],
     finalDate: currentDate().toISOString().split('T')[0],
@@ -53,6 +58,7 @@ export default function SalesTable() {
   });
   const [dialogFilters, setTemporaryFilters] = useState({ ...filters });
   const [hasFilters, setHasFilters] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -110,77 +116,81 @@ export default function SalesTable() {
       finalDate: currentDate().toISOString().split('T')[0],
       customer: '',
     });
-  };  
+  };
+
+  const handleDeleteSale = () => {
+    console.log('cancelar venda');
+
+    const inLimit = isWithinDateLimit(selectedSale.date, 3);
+
+    if (!inLimit) {
+      setShowAlert({show: true, message: 'Não é possível cancelar esta venda!', severity: 'warning'});
+      return
+    }
+    
+    setOpenModal(true);
+  };
+  
+  const handleCloseModal = async (confirmed) => {
+    setOpenModal(false);
+
+    if (confirmed) {
+      const saleId = selectedSale._id;  
+      setIsSending(true);
+      const response = await deleteSale(saleId);
+      setIsSending(false);
+      if (statusSuccess.includes(response.status)) {      
+        setShowAlert({show: true, message: 'Venda cancelada com sucesso.', severity: 'success'});      
+        setTimeout(() => {                    
+          // setOpenViewDialog(false);
+          window.location.reload();
+        }, 1000);
+        return;  
+      } 
+
+      if (statusWarning.includes(response.status)) {
+        setShowAlert({show: true, message: response.data.message, severity: 'warning'});
+        return;
+      }
+      
+      if (response.status===500) {
+        setShowAlert({show: true, message: response.data.message, severity: 'error'});
+        return;
+      }
+
+    } else {
+      console.log("Cancelamento não realizado.");
+    }
+
+  };
   
   function Row(props) {
     const { row } = props;
     const isMobile = useMediaQuery('(max-width:600px)');
-    const [open, setOpen] = React.useState(false);
 
     return (
       <React.Fragment>
-        <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-          <TableCell sx={{ padding: '6px' }}>
+        <TableRow sx={{ '& > *': { borderBottom: 'unset' }} }         >
+          <TableCell sx={{ padding: '4px' }}>
             <IconButton
-              aria-label="expand row"
+              aria-label="more options"
               size="small"
-              onClick={() => setOpen(!open)}
+              onClick={() => {
+                setSelectedSale(row);
+                setOpenViewDialog(true);
+              }} 
             >
-              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              <VisibilityIcon />
             </IconButton>
           </TableCell>
           {(!isMobile) && <TableCell>{row.code}</TableCell>}
           <TableCell>{formatDatePtBr(row.date)}</TableCell>
-          {/* <TableCell>{format(new Date(row.date), 'yyyy-MM-dd HH:mm:ssXXX', { timeZone: 'America/Sao_Paulo' })}</TableCell> */}
           <TableCell>{row.customer.name}</TableCell>
           <TableCell align="right">
             {row.total.toLocaleString('pt-BR', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
-            <Collapse in={open} timeout="auto" unmountOnExit >
-              <Box sx={{ margin: 1 }}>
-                <Typography variant="h6" gutterBottom component="div">
-                  Itens
-                </Typography>
-                <Table size="small" aria-label="purchases">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Produto</TableCell>
-                      <TableCell align="right">Quantidade</TableCell>
-                      <TableCell align="right">Preço Unitário</TableCell>
-                      <TableCell align="right">Preço Total</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {row.items.map((itemsRow) => (
-                      <TableRow key={itemsRow.product._id}>
-                        <TableCell component="th" scope="row">
-                          {itemsRow.product.name}
-                        </TableCell>
-                        <TableCell align="right">{itemsRow.quantity}</TableCell>
-                        <TableCell align="right">
-                          {itemsRow.unitPrice.toLocaleString('pt-BR', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </TableCell>
-                        <TableCell align="right">
-                          {itemsRow.totalPrice.toLocaleString('pt-BR', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Box>
-            </Collapse>
           </TableCell>
         </TableRow>
       </React.Fragment>
@@ -227,6 +237,7 @@ export default function SalesTable() {
           quantity: PropTypes.number.isRequired,
           unitPrice: PropTypes.number.isRequired,
           totalPrice: PropTypes.number.isRequired,
+          discount: PropTypes.number.isRequired,
         })
       ).isRequired,
     }).isRequired,
@@ -298,20 +309,160 @@ export default function SalesTable() {
             </TableFooter>
           </Table>
         </TableContainer>
-        <Dialog open={openDialog} onClose={handleFilterCancel}>
-        <DialogTitle
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            color: 'rgb(235, 235, 235)',
-            bgcolor: 'rgb(25, 118, 210)',
-            padding: '16px', 
-          }}
+ 
+        <Dialog
+          open={openViewDialog}
+          onClose={() => setOpenViewDialog(false)}
+          fullWidth
+          maxWidth="md"
         >
-          Filtros
-          <FilterListIcon />
-        </DialogTitle>
+          <DialogTitle
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              color: 'rgb(235, 235, 235)',
+              bgcolor: 'rgb(25, 118, 210)',
+              padding: '16px', 
+            }}
+          >
+            Detalhes da Venda
+            {(user.role === 'admin') && (
+              <IconButton
+                sx={{ color: "white" }}
+                onClick={handleDeleteSale}
+              >
+                <DeleteIcon/>
+              </IconButton>
+            )}  
+          </DialogTitle>
+          {selectedSale && (
+            <DialogContent>
+              <Typography variant="h6">Código: {selectedSale.code}</Typography>
+              <Typography variant="body1">Data: {formatDatePtBr(selectedSale.date)}</Typography>
+              <Typography variant="body1">{selectedSale.customer.name}</Typography>
+          
+              <Typography variant="h6" style={{ marginTop: '16px' }}>
+                Itens da Venda:
+              </Typography>
+
+              <div 
+                style={{ 
+                  maxHeight: '250px', 
+                  overflowY: 'auto',  
+                  overflowX: 'auto' 
+                }}
+              >
+                <Table size="small" aria-label="itens-venda">
+                  <TableHead sx={{backgroundColor: "#f4f4f4"}}>
+                    <TableRow >
+                      <TableCell>Produto</TableCell>
+                      <TableCell align="right">Quantidade</TableCell>
+                      <TableCell align="right">Preço Unitário</TableCell>
+                      <TableCell align="right">Desconto</TableCell>
+                      <TableCell align="right">Preço Total</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {selectedSale.items.map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{item.product.name}</TableCell>
+                        <TableCell align="right">{item.quantity.toFixed(3).replace(".",",")}</TableCell>
+                        <TableCell align="right">{item.unitPrice.toFixed(2).replace(".",",")}</TableCell>
+                        <TableCell align="right">{item.discount.toFixed(2).replace(".",",")}</TableCell>
+                        <TableCell align="right">{item.totalPrice.toFixed(2).replace(".",",")}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              {(isMobile) ? ( 
+                <div
+                  style={{
+                    marginTop: "10px",
+                    padding: "6px",
+                    backgroundColor: "#f4f4f4",
+                    display: "table",
+                    width: "100%",
+                  }}
+                >
+                  <div style={{ display: "table-row" }}>
+                    <div style={{ display: "table-cell", paddingRight: "8px" }}>
+                      <Typography variant="body2">SubTotal (R$):</Typography>
+                    </div>
+                    <div style={{ display: "table-cell", textAlign: "right" }}>
+                      <Typography variant="body1" fontWeight="bold" >
+                        {selectedSale.subtotal.toFixed(2).replace(".", ",")}
+                      </Typography>
+                    </div>
+                  </div>
+                  <div style={{ display: "table-row" }}>
+                    <div style={{ display: "table-cell", paddingRight: "8px" }}>
+                      <Typography variant="body2">Desconto (R$):</Typography>
+                    </div>
+                    <div style={{ display: "table-cell", textAlign: "right" }}>
+                      <Typography variant="body1" fontWeight="bold">
+                        {selectedSale.discount.toFixed(2).replace(".", ",")}
+                      </Typography>
+                    </div>
+                  </div>
+                  <div style={{ display: "table-row" }}>
+                    <div style={{ display: "table-cell", paddingRight: "8px" }}>
+                      <Typography variant="body2">Total (R$):</Typography>
+                    </div>
+                    <div style={{ display: "table-cell", textAlign: "right" }}>
+                      <Typography variant="body1" fontWeight="bold">
+                        {selectedSale.total.toFixed(2).replace(".", ",")}
+                      </Typography>
+                    </div>
+                  </div>
+                </div>
+              
+              ) : (
+                <div 
+                  style={{
+                    marginTop: "8px",
+                    padding: "4px",
+                    backgroundColor: "#f4f4f4",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span 
+                    style={{ fontSize: '1rem', fontWeight: 'bold' }}
+                  > SubTotal (R$): {selectedSale.subtotal.toFixed(2).replace(".",",")} </span>
+                  <span 
+                    style={{ fontSize: '1rem', fontWeight: 'bold' }}
+                  > Desconto (R$): {selectedSale.discount.toFixed(2).replace(".",",")} </span>
+                  <span 
+                    style={{ fontSize: '1rem', fontWeight: 'bold' }}
+                  > Total (R$): {selectedSale.total.toFixed(2).replace(".",",")} </span>
+                </div>
+              )}
+            </DialogContent>
+          )}
+          <DialogActions>
+            <Button onClick={() => setOpenViewDialog(false)} color="primary">
+              Fechar
+            </Button>
+          </DialogActions>
+        </Dialog>
+ 
+        <Dialog open={openDialog} onClose={handleFilterCancel}>
+          <DialogTitle
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              color: 'rgb(235, 235, 235)',
+              bgcolor: 'rgb(25, 118, 210)',
+              padding: '16px', 
+            }}
+          >
+            Filtros
+            <FilterListIcon />
+          </DialogTitle>
           <DialogContent>
           <Box mb={2} sx={{ marginTop: '16px' }}>
             <TextField
@@ -361,6 +512,12 @@ export default function SalesTable() {
             </Button>
           </DialogActions>
         </Dialog>
+        <ConfirmationModal
+          open={openModal}
+          onClose={handleCloseModal}
+          message="Tem certeza que deseja cancelar esta venda?"
+          isSending={isSending}
+        />
       </>
       )}      
       {

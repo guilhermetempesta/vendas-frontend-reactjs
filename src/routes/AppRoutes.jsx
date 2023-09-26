@@ -24,7 +24,7 @@ import ProfilePage from "../pages/ProfilePage";
 import ChangePasswordLoggedPage from "../pages/ProfileChangePasswordPage";
 import ChangePasswordPage from "../pages/ChangePasswordPage";
 import UserEmailVerifyPage from "../pages/UserEmailVerifyPage";
-import SalesPage from "../pages/SalesPage";
+import SalesReport from "../pages/SalesReportPage";
 import SalePage from "../pages/SalePage";
 import ProductsPage from "../pages/ProductsPage";
 import ProductPage from "../pages/ProductPage";
@@ -79,11 +79,9 @@ const AppRoutes = () => {
             <Route exact path="/products" element={<Private><Layout><ProductsPage/></Layout></Private>}/>
             <Route exact path="/new-product" element={<Private><Layout><ProductPage/></Layout></Private>}/>
             <Route exact path="/product/:id" element={<Private><Layout><ProductPage/></Layout></Private>}/>
-            {/* <Route exact path="/sales" element={<Private><Layout><SalesPage/></Layout></Private>}/> */}
             <Route exact path="/new-sale" element={<Private><Layout><SalePage/></Layout></Private>}/>
-            <Route exact path="/sale/:id" element={<Private><Layout><SalePage/></Layout></Private>}/>
             <Route exact path="/reports" element={<Private><Layout><ReportsPage/></Layout></Private>}/>
-            <Route exact path="/reports/sales" element={<Private><Layout><SalesPage/></Layout></Private>}/>
+            <Route exact path="/reports/sales" element={<Private><Layout><SalesReport/></Layout></Private>}/>
             <Route exact path="/cart" element={<Private><Layout><CartPage/></Layout></Private>}/>
             <Route exact path="/cart-checkout" element={<Private><Layout><CartCheckoutPage/></Layout></Private>}/>
             {/* test routes */}

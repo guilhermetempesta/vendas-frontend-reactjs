@@ -1,11 +1,9 @@
 import React, { useEffect } from "react";
-
 import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
+import SalesDetailTable from "../../components/Sale/SalesTable";
 
-import SalesTable from "../../components/Sale/SalesTable";
-
-export default function SalesPage() {
+export default function SalesReportPage() {
   
   useEffect(() => {    
     window.scrollTo(0, 0);
@@ -14,7 +12,7 @@ export default function SalesPage() {
   return (
     <Container component="main" maxWidth="xbl" height="100%">
       <CssBaseline />        
-      <SalesTable/>
+      <SalesDetailTable/>
     </Container>
   );
 }

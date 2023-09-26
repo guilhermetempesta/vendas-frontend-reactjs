@@ -71,6 +71,23 @@ export const firstDayOfMonth = () => {
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
   return firstDay;
 };
+
+export const isWithinDateLimit = (dateToCheck, daysLimit) => {
+  // Obtém a data atual
+  const currentDate = new Date();
+
+  // Formate a data passada para o formato "yyyy-MM-dd" e crie um objeto Date
+  const formattedDateToCheck = new Date(dateToCheck);
+
+  // Define a diferença máxima em milissegundos com base no limite em dias
+  const maxDifference = daysLimit * 24 * 60 * 60 * 1000;
+  
+  // Calcula a diferença entre a data atual e a data passada
+  const difference = currentDate - formattedDateToCheck;
+  
+  // Verifica se a diferença está dentro do limite máximo
+  return difference <= maxDifference;
+};
   
 export const statusSuccess = [200, 201, 204]; 
 export const statusWarning = [400, 403, 405];
