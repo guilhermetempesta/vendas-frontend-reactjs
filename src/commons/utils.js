@@ -92,3 +92,29 @@ export const isWithinDateLimit = (dateToCheck, daysLimit) => {
 export const statusSuccess = [200, 201, 204]; 
 export const statusWarning = [400, 403, 405];
     
+export const months = [
+  "Janeiro", "Fevereiro", "Março", "Abril",
+  "Maio", "Junho", "Julho", "Agosto",
+  "Setembro", "Outubro", "Novembro", "Dezembro"
+];
+
+export const getMonthAndYear = () => {
+  const currentDate = new Date();
+  const monthName = months[currentDate.getMonth()];
+  const currentYear = currentDate.getFullYear();
+
+  return `${monthName} / ${currentYear}`;
+}
+
+export const extractAbbreviatedName = (fullName) => {
+  const nameParts = fullName.split(' ');
+
+  if (nameParts.length >= 2) {
+    const firstName = nameParts[0];
+    const firstLetterLastName = nameParts[1].charAt(0);
+    const abbreviatedName = `${firstName} ${firstLetterLastName}.`;
+    return abbreviatedName;
+  }
+
+  return fullName;
+}

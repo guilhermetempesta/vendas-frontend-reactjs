@@ -29,6 +29,7 @@ import Title from "./Title";
 import AlertSnackbar from "./AlertSnackbar";
 import { getCustomers } from "../services/customer";
 import { CircularProgress, Link } from "@mui/material";
+import { DateTime } from 'luxon';
 
 const steps = [
   {
@@ -171,9 +172,17 @@ export default function CheckoutStepper() {
 
     const subTotal = getCartTotal();
 
+    // Especifique o fuso horário 'America/Sao_Paulo' para o Brasil
+    const timeZone = 'America/Sao_Paulo';
+
+    // Obtenha a data e hora atual no fuso horário especificado
+    const currentDate = DateTime.now().setZone(timeZone).toISO();
+
+    console.log(currentDate.toString());
+    
     const sale = {
       customer: selectedCustomer._id,
-      date: new Date(),
+      date: currentDate,
       subtotal: subTotal,
       discount: discount,
       addition: 0.00,

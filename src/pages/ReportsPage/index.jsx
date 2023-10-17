@@ -20,7 +20,7 @@ const reports = [
     route: "/reports/salesbyitem",
     description: "Lista os itens vendidos, totalizando por valor e quantidade.",
   },{
-    title: "Vendas mensais",
+    title: "Resumo de vendas mensais",
     route: "/reports/salesbymonth",
     description: "Totaliza as vendas por mês.",
   },{
