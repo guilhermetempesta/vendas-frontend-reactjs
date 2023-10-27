@@ -29,7 +29,7 @@ const reports = [
     description: "Lista as vendas canceladas.",
   },{
     title: "Comissões",
-    route: "/reports/commission",
+    route: "/reports/comission",
     description: "Calcula o valor comissões dos vendedores.",
   },{
     title: "Lucros",
