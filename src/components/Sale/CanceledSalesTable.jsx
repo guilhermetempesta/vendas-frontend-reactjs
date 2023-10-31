@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 
 import { TableFooter, useMediaQuery } from "@mui/material";
@@ -23,10 +23,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import DeleteIcon from '@mui/icons-material/Delete';
 
-import { deleteSale, getSales } from "../../services/sale";
-import { currentDate, firstDayOfMonth, formatDatePtBr, isWithinDateLimit, statusSuccess, statusWarning } from '../../commons/utils';
+import { getCanceledSales } from "../../services/sale";
+import { currentDate, firstDayOfMonth, formatDatePtBr } from '../../commons/utils';
 import { useNavigate } from "react-router-dom";
 import { clearUserData } from "../../commons/authVerify";
 
@@ -35,18 +34,13 @@ import PDFGenerator from "../PDFGenerator";
 
 import AlertSnackbar from "../AlertSnackbar";
 import Title from "../Title";
-import { AuthContext } from "../../contexts/auth";
-import ConfirmationModal from "../ConfirmationModal";
 
-
-export default function SalesDetailTable() {
+export default function CanceledSalesTable() {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width:600px)');
-  const { user } = useContext(AuthContext);
   
   const [showAlert, setShowAlert] = useState({show: false});
   const [isLoading, setIsLoading] = useState(false);
-  const [isSending, setIsSending] = useState(false);
   const [rows, setRows] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [openViewDialog, setOpenViewDialog] = useState(false);
@@ -54,18 +48,17 @@ export default function SalesDetailTable() {
   const [filters, setFilters] = useState({
     initialDate: firstDayOfMonth().toISOString().split('T')[0],
     finalDate: currentDate().toISOString().split('T')[0],
-    customer: '',
+    user: '',
   });
   const [dialogFilters, setTemporaryFilters] = useState({ ...filters });
   const [hasFilters, setHasFilters] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
 
     const loadSales = async () => {
       setIsLoading(true);
-      const response = await getSales(filters);
+      const response = await getCanceledSales(filters);
       console.log(response);
       
       if (response.networkError) {
@@ -100,7 +93,7 @@ export default function SalesDetailTable() {
     const filtersApplied =
       dialogFilters.initialDate.split('T')[0] !== firstDayOfMonth().toISOString().split('T')[0] ||
       dialogFilters.finalDate.split('T')[0] !== currentDate().toISOString().split('T')[0] ||
-      dialogFilters.customer !== '';
+      dialogFilters.user !== '';
 
     setHasFilters(filtersApplied);
     setFilters({ ...dialogFilters });
@@ -114,54 +107,8 @@ export default function SalesDetailTable() {
     setTemporaryFilters({
       initialDate: firstDayOfMonth().toISOString().split('T')[0],
       finalDate: currentDate().toISOString().split('T')[0],
-      customer: '',
+      user: '',
     });
-  };
-
-  const handleDeleteSale = () => {
-    console.log('cancelar venda');
-
-    const inLimit = isWithinDateLimit(selectedSale.date, 3);
-
-    if (!inLimit) {
-      setShowAlert({show: true, message: 'Não é possível cancelar esta venda!', severity: 'warning'});
-      return
-    }
-    
-    setOpenModal(true);
-  };
-  
-  const handleCloseModal = async (confirmed) => {
-    setOpenModal(false);
-
-    if (confirmed) {
-      const saleId = selectedSale._id;  
-      setIsSending(true);
-      const response = await deleteSale(saleId);
-      setIsSending(false);
-      if (statusSuccess.includes(response.status)) {      
-        setShowAlert({show: true, message: 'Venda cancelada com sucesso.', severity: 'success'});      
-        setTimeout(() => {                    
-          // setOpenViewDialog(false);
-          window.location.reload();
-        }, 1000);
-        return;  
-      } 
-
-      if (statusWarning.includes(response.status)) {
-        setShowAlert({show: true, message: response.data.message, severity: 'warning'});
-        return;
-      }
-      
-      if (response.status===500) {
-        setShowAlert({show: true, message: response.data.message, severity: 'error'});
-        return;
-      }
-
-    } else {
-      console.log("Cancelamento não realizado.");
-    }
-
   };
   
   function Row(props) {
@@ -186,6 +133,7 @@ export default function SalesDetailTable() {
           {(!isMobile) && <TableCell>{row.code}</TableCell>}
           <TableCell>{formatDatePtBr(row.date)}</TableCell>
           <TableCell>{row.customer.name}</TableCell>
+          {(!isMobile) && <TableCell>{row.user.name}</TableCell>}
           <TableCell align="right">
             {row.total.toLocaleString('pt-BR', {
               minimumFractionDigits: 2,
@@ -211,7 +159,7 @@ export default function SalesDetailTable() {
       <React.Fragment>
         <TableRow sx={{bgcolor: "#f4f4f4"}}>
           <TableCell 
-            style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} colSpan={(isMobile) ? 3 : 4}
+            style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} colSpan={(isMobile) ? 3 : 5}
           >Total</TableCell>
           <TableCell 
             align="right" style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }}
@@ -226,6 +174,9 @@ export default function SalesDetailTable() {
       code: PropTypes.number.isRequired, 
       date: PropTypes.string.isRequired,
       customer: PropTypes.shape({
+        name: PropTypes.string.isRequired,
+      }),
+      user: PropTypes.shape({
         name: PropTypes.string.isRequired,
       }),
       total: PropTypes.number.isRequired,
@@ -246,7 +197,7 @@ export default function SalesDetailTable() {
   return (
     <div>
       <Title>
-        <h2 style={{marginBottom: '4px'}}>Vendas</h2>
+        <h2 style={{marginBottom: '4px'}}>Vendas Canceladas</h2>
         {(!isLoading) &&
         <span>
           <IconButton
@@ -257,7 +208,7 @@ export default function SalesDetailTable() {
               <FilterListIcon />
             </Badge>
           </IconButton>
-          <PDFDownloadLink document={<PDFGenerator data={rows} type='sales'/>} fileName="Vendas.pdf">  
+          <PDFDownloadLink document={<PDFGenerator data={rows} type='canceledSales'/>} fileName="VendasCanceladas.pdf">  
             {({ loadingReport }) =>
               loadingReport ? (
                 <CircularProgress />
@@ -296,6 +247,7 @@ export default function SalesDetailTable() {
                 {(!isMobile) && <TableCell>Código</TableCell>}
                 <TableCell>Data</TableCell>
                 <TableCell>Cliente</TableCell>
+                {(!isMobile) && <TableCell>Vendedor</TableCell>}
                 <TableCell align="right">Valor&nbsp;(R$)</TableCell>
               </TableRow>
             </TableHead>
@@ -326,26 +278,17 @@ export default function SalesDetailTable() {
               padding: '16px', 
             }}
           >
-            Detalhes da Venda
-            {(user.role === 'admin') && (
-              <IconButton
-                sx={{ color: "white" }}
-                onClick={handleDeleteSale}
-              >
-                <DeleteIcon/>
-              </IconButton>
-            )}  
+            Detalhes da Venda  
           </DialogTitle>
           {selectedSale && (
             <DialogContent>
               <Typography variant="h6">Código: {selectedSale.code}</Typography>
               <Typography variant="body1">Data: {formatDatePtBr(selectedSale.date)}</Typography>
-              <Typography variant="body1">{selectedSale.customer.name}</Typography>
-          
+              <Typography variant="body1">Cliente: {selectedSale.customer.name}</Typography>
+              <Typography variant="body1">Vendedor: {selectedSale.user.name}</Typography>
               <Typography variant="h6" style={{ marginTop: '16px' }}>
                 Itens da Venda:
               </Typography>
-
               <div 
                 style={{ 
                   maxHeight: '250px', 
@@ -490,12 +433,21 @@ export default function SalesDetailTable() {
               }
             />
           </Box>
-          <Box>
+          <Box mb={2}>
             <TextField
               label="Cliente"
               value={dialogFilters.customer}
               onChange={(e) =>
                 setTemporaryFilters({ ...dialogFilters, customer: e.target.value })
+              }
+            />
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label="Vendedor"
+              value={dialogFilters.user}
+              onChange={(e) =>
+                setTemporaryFilters({ ...dialogFilters, user: e.target.value })
               }
             />
           </Box>
@@ -512,12 +464,6 @@ export default function SalesDetailTable() {
             </Button>
           </DialogActions>
         </Dialog>
-        <ConfirmationModal
-          open={openModal}
-          onClose={handleCloseModal}
-          message="Tem certeza que deseja cancelar esta venda?"
-          isSending={isSending}
-        />
       </>
       )}      
       {

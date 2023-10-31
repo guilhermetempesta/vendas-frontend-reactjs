@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 
-import { TableFooter, useMediaQuery } from "@mui/material";
+import { TableFooter } from "@mui/material";
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -11,7 +11,6 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -21,12 +20,9 @@ import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import Collapse from '@mui/material/Collapse';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 
-import { getComissions } from "../../services/comission";
+import { getProductsReport } from "../../services/product";
 import { currentDate, firstDayOfMonth, formatDatePtBr } from '../../commons/utils';
 import { useNavigate } from "react-router-dom";
 import { clearUserData } from "../../commons/authVerify";
@@ -37,18 +33,25 @@ import PDFGenerator from "../PDFGenerator";
 import AlertSnackbar from "../AlertSnackbar";
 import Title from "../Title";
 
-export default function ComissionTable() {
+export default function ProductTable() {
   const navigate = useNavigate();
-  const isMobile = useMediaQuery('(max-width:600px)');
   
   const [showAlert, setShowAlert] = useState({show: false});
   const [isLoading, setIsLoading] = useState(false);
-  const [rows, setRows] = useState([]);
+  const [data, setData] = useState({
+    products: [],
+    summary: {
+      totalCost: 0,
+		  totalSales: 0,
+		  resultValue: 0,
+		  resultPercent: 0
+    }
+  });
   const [openDialog, setOpenDialog] = useState(false);
   const [filters, setFilters] = useState({
     initialDate: firstDayOfMonth().toISOString().split('T')[0],
     finalDate: currentDate().toISOString().split('T')[0],
-    user: '',
+    product: '',
   });
   const [dialogFilters, setTemporaryFilters] = useState({ ...filters });
   const [hasFilters, setHasFilters] = useState(false);
@@ -56,9 +59,9 @@ export default function ComissionTable() {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    const loadComissions = async () => {
+    const loadProducts = async () => {
       setIsLoading(true);
-      const response = await getComissions(filters);
+      const response = await getProductsReport(filters);
       console.log(response);
       
       if (response.networkError) {
@@ -73,14 +76,14 @@ export default function ComissionTable() {
 
       if (response.status === 200) {
         setShowAlert({show: false, message: response.data.message, severity: 'success'});
-        setRows(response.data);
+        setData(response.data);
       };
 
       setIsLoading(false);
     };
 
     console.log('useEffect')
-    loadComissions(navigate, filters);
+    loadProducts(navigate, filters);
   }, [navigate, filters]);
   
   const handleFilterClick = () => {
@@ -93,7 +96,7 @@ export default function ComissionTable() {
     const filtersApplied =
       dialogFilters.initialDate.split('T')[0] !== firstDayOfMonth().toISOString().split('T')[0] ||
       dialogFilters.finalDate.split('T')[0] !== currentDate().toISOString().split('T')[0] ||
-      dialogFilters.user !== '';
+      dialogFilters.product !== '';
 
     setHasFilters(filtersApplied);
     setFilters({ ...dialogFilters });
@@ -107,64 +110,27 @@ export default function ComissionTable() {
     setTemporaryFilters({
       initialDate: firstDayOfMonth().toISOString().split('T')[0],
       finalDate: currentDate().toISOString().split('T')[0],
-      user: '',
+      product: '',
     });
   };
   
   function Row(props) {
     const { row } = props;
-    const [open, setOpen] = React.useState(false);
 
     return (
       <React.Fragment>
-        <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-          <TableCell sx={{ padding: '3px' }}>
-            <IconButton
-              aria-label="expand row"
-              size="small"
-              onClick={() => setOpen(!open)}
-            >
-              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            </IconButton>
-          </TableCell>
-          <TableCell component="th" scope="row">
-            {row.user.name}
-          </TableCell>
-          <TableCell align="right">{row.totalSales.toFixed(2).replace(".",",")}</TableCell>
-          <TableCell align="right">{row.totalComission.toFixed(2).replace(".",",")}</TableCell>
-        </TableRow>
         <TableRow>
-          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <Box sx={{ margin: 1 }}>
-                <Typography variant="h6" gutterBottom component="div">
-                  Vendas
-                </Typography>
-                <Table size="small" aria-label="purchases">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Date</TableCell>
-                      <TableCell>Cliente</TableCell>
-                      <TableCell align="right">Valor</TableCell>
-                      <TableCell align="right">Comissão</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {row.sales.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell component="th" scope="row">
-                          {formatDatePtBr(item.date)}
-                        </TableCell>
-                        <TableCell>{item.customer.name}</TableCell>
-                        <TableCell align="right">{item.totalValue.toFixed(2).replace(".",",")}</TableCell>
-                        <TableCell align="right">{item.comissionValue.toFixed(2).replace(".",",")}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Box>
-            </Collapse>
+          <TableCell component="th" scope="row">
+            {row.name}
           </TableCell>
+          <TableCell align="right">{row.soldAmount.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell align="right">{row.averagePrice.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell align="right">{row.totalDiscount.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell align="right">{row.totalSales.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell align="right">{row.unitCost.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell align="right">{row.totalCost.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell align="right">{row.resultValue.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell align="right">{row.resultPercent.toFixed(2).replace(".",",")}</TableCell>
         </TableRow>
       </React.Fragment>
     );
@@ -172,23 +138,24 @@ export default function ComissionTable() {
 
   function SumaryTable() {
     
-    const invoiceTotal = (items) => {
-      const totalComissions = items.map(({ totalComission }) => totalComission).reduce((sum, i) => sum + i, 0);
-      return totalComissions.toLocaleString('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-    }
-
     return (
       <React.Fragment>
         <TableRow sx={{bgcolor: "#f4f4f4"}}>
           <TableCell 
-            style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} colSpan={3}
+            style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} colSpan={4}
           >Total</TableCell>
           <TableCell 
+            align="right" style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} 
+          >{data.summary.totalSales.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell 
+            align="right" style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} colSpan={2}
+          >{data.summary.totalCost.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell 
             align="right" style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }}
-          >{invoiceTotal(rows)}</TableCell>
+          >{data.summary.resultValue.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell 
+            align="right" style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }}
+          >{data.summary.resultPercent.toFixed(2).replace(".",",")}</TableCell>
         </TableRow>
       </React.Fragment>
     );
@@ -196,28 +163,36 @@ export default function ComissionTable() {
 
   Row.propTypes = {
     row: PropTypes.shape({
-      user: PropTypes.shape({
-        name: PropTypes.string.isRequired,
-      }),
-      totalSales: PropTypes.number.isRequired,
-      totalComission: PropTypes.number.isRequired,
-      sales: PropTypes.arrayOf(
+      products: PropTypes.arrayOf(
         PropTypes.shape({
-          customer: PropTypes.shape({
-            name: PropTypes.string.isRequired,
-          }),
-          date: PropTypes.string.isRequired,
-          totalValue: PropTypes.number.isRequired,
-          comissionValue: PropTypes.number.isRequired,
+          id: PropTypes.string.isRequired,
+          name: PropTypes.string.isRequired,
+          soldAmount: PropTypes.number.isRequired,
+          averagePrice: PropTypes.number.isRequired,
+          subTotalSales: PropTypes.number.isRequired,
+          totalSales: PropTypes.number.isRequired,
+          unitCost: PropTypes.number.isRequired,
+          totalCost: PropTypes.number.isRequired,
+          resultValue: PropTypes.number.isRequired,
+          resultPercent: PropTypes.number.isRequired,
         })
-      ).isRequired,
+      ),//.isRequired,
+      summary: PropTypes.shape({
+        totalCost: PropTypes.number.isRequired,
+        totalSales: PropTypes.number.isRequired,
+        resultValue: PropTypes.number.isRequired,
+        resultPercent: PropTypes.number.isRequired,
+      }),
     }).isRequired,
   };
 
   return (
     <div>
       <Title>
-        <h2 style={{marginBottom: '4px'}}>Comissões</h2>
+        <span style={{marginBottom: '4px'}}>
+          <h2 style={{marginBottom: '4px'}}>Produtos</h2>
+          <p style={{margin: '2px'}}>{`${formatDatePtBr(filters.initialDate)} - ${formatDatePtBr(filters.finalDate)}`}</p>
+        </span>
         {(!isLoading) &&
         <span>
           <IconButton
@@ -228,7 +203,9 @@ export default function ComissionTable() {
               <FilterListIcon />
             </Badge>
           </IconButton>
-          <PDFDownloadLink document={<PDFGenerator data={rows} type='comissions'/>} fileName="Comissoes.pdf">  
+          <PDFDownloadLink 
+            document={<PDFGenerator data={data} type='products' subtitle={`${formatDatePtBr(filters.initialDate)} - ${formatDatePtBr(filters.finalDate)}`}/>} 
+            fileName="ProdutosLucros.pdf">  
             {({ loadingReport }) =>
               loadingReport ? (
                 <CircularProgress />
@@ -263,14 +240,19 @@ export default function ComissionTable() {
           <Table aria-label="collapsible table">
             <TableHead sx={{bgcolor: '#f4f4f4'}}>
               <TableRow>
-                <TableCell />
-                <TableCell>Vendedor</TableCell>
-                <TableCell align="right">Vendas</TableCell>
-                <TableCell align="right">Comissão</TableCell>
-              </TableRow>
+                <TableCell>Produto</TableCell>
+                <TableCell align="right">Qtde</TableCell>
+                <TableCell align="right">Preço Médio</TableCell>
+                <TableCell align="right">Desconto</TableCell>
+                <TableCell align="right">Total Vendas</TableCell>
+                <TableCell align="right">Custo</TableCell>
+                <TableCell align="right">Total Custo</TableCell>
+                <TableCell align="right">Resultado R$</TableCell>
+                <TableCell align="right">% Lucro</TableCell>
+              </TableRow>  
             </TableHead>
             <TableBody>
-              {rows.map((row, index) => (
+              {data.products.map((row, index) => (
                 <Row key={index} row={row} />
               ))}
             </TableBody>
@@ -279,6 +261,7 @@ export default function ComissionTable() {
             </TableFooter>
           </Table>
         </TableContainer>
+        
         <Dialog open={openDialog} onClose={handleFilterCancel}>
           <DialogTitle
             sx={{
@@ -322,10 +305,10 @@ export default function ComissionTable() {
           </Box>
           <Box>
             <TextField
-              label="Vendedor"
-              value={dialogFilters.user}
+              label="Produto"
+              value={dialogFilters.product}
               onChange={(e) =>
-                setTemporaryFilters({ ...dialogFilters, user: e.target.value })
+                setTemporaryFilters({ ...dialogFilters, product: e.target.value })
               }
             />
           </Box>
@@ -342,6 +325,7 @@ export default function ComissionTable() {
             </Button>
           </DialogActions>
         </Dialog>
+
       </>
       )}      
       {

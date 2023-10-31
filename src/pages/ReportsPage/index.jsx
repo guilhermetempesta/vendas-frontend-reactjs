@@ -16,9 +16,9 @@ const reports = [
     route: "/reports/sales",
     description: "Lista as vendas realizadas em um período.",
   },{
-    title: "Vendas por item",
-    route: "/reports/salesbyitem",
-    description: "Lista os itens vendidos, totalizando por valor e quantidade.",
+    title: "Vendas por cliente/produto",
+    route: "/reports/salescustomeritem",
+    description: "Totaliza as vendas por cliente, listando os produtos mais vendidos",
   },{
     title: "Resumo de vendas mensais",
     route: "/reports/salesbymonth",
@@ -28,13 +28,13 @@ const reports = [
     route: "/reports/canceledsales",
     description: "Lista as vendas canceladas.",
   },{
-    title: "Comissões",
+    title: "Vendas/Comissões",
     route: "/reports/comission",
-    description: "Calcula o valor comissões dos vendedores.",
+    description: "Lista as vendas e calcula o valor das comissões dos vendedores.",
   },{
-    title: "Lucros",
-    route: "/reports/result",
-    description: "Exibe os lucros e resultados em um período.",
+    title: "Produtos/Lucros",
+    route: "/reports/products",
+    description: "Exibe os produtos listando vendas e resultados em um período.",
   },
 ];
 

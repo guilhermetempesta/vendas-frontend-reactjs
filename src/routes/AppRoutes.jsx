@@ -34,6 +34,8 @@ import ReportsPage from "../pages/ReportsPage";
 import CartPage from "../pages/CartPage";
 import CartCheckoutPage from "../pages/CartCheckoutPage";
 import ComissionReportPage from "../pages/ReportsPage/ComissionReportPage";
+import CanceledSalesReportPage from "../pages/ReportsPage/CanceledSalesReportPage";
+import ProductReportPage from "../pages/ReportsPage/ProductsReportPage";
 
 const AppRoutes = () => {
 
@@ -83,7 +85,9 @@ const AppRoutes = () => {
             <Route exact path="/new-sale" element={<Private><Layout><SalePage/></Layout></Private>}/>
             <Route exact path="/reports" element={<Private><Layout><ReportsPage/></Layout></Private>}/>
             <Route exact path="/reports/sales" element={<Private><Layout><SalesReport/></Layout></Private>}/>
+            <Route exact path="/reports/canceledsales" element={<Private><Layout><CanceledSalesReportPage/></Layout></Private>}/>
             <Route exact path="/reports/comission" element={<Private><Layout><ComissionReportPage/></Layout></Private>}/>
+            <Route exact path="/reports/products" element={<Private><Layout><ProductReportPage/></Layout></Private>}/>
             <Route exact path="/cart" element={<Private><Layout><CartPage/></Layout></Private>}/>
             <Route exact path="/cart-checkout" element={<Private><Layout><CartCheckoutPage/></Layout></Private>}/>
             {/* test routes */}

@@ -68,3 +68,36 @@ export const deleteSale = async(id) => {
     return error.response;
   }
 }
+
+export const getCanceledSales = async (filters) => {
+  try {
+    const queryParams = [];
+    let query = null;
+
+    if (filters) {
+      if (filters.initialDate) {
+        queryParams.push(`initialDate=${filters.initialDate}`);
+      }
+      if (filters.finalDate) {
+        queryParams.push(`finalDate=${filters.finalDate}`);
+      }
+      if (filters.user !== '') {
+        queryParams.push(`user=${filters.user}`);
+      }
+      query = queryParams.join('&');
+    }
+    
+    console.log('query:', query);
+
+    const response = (query) 
+      ? await api.get(`/reports/canceled-sales?${query}`) 
+      : await api.get('/reports/canceled-sales');
+    return response;
+  } catch(error) {
+    if (!error.response) {
+      return { networkError: 'Erro de conexão.'}
+    } else {
+      return error.response;
+    }
+  } 
+}

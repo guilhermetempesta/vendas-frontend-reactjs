@@ -1,18 +1,5 @@
 import { api } from './api'
 
-// export const getProducts = async () => {
-//   try {
-//     const response = await api.get('/products');
-//     return response;
-//   } catch(error) {
-//     if (!error.response) {
-//       return { networkError: 'Erro de conexão.'}
-//     } else {
-//       return error.response;
-//     }
-//   } 
-// }
-
 export const getProducts = async (searchTerm) => {
   try {
     let url = '/products';
@@ -94,4 +81,35 @@ export const deleteProduct = async(id) => {
   } catch(error) {
     return error.response;
   }
+}
+
+export const getProductsReport = async (filters) => {
+  try {
+    const queryParams = [];
+    let query = null;
+
+    if (filters) {
+      if (filters.initialDate) {
+        queryParams.push(`initialDate=${filters.initialDate}`);
+      }
+      if (filters.finalDate) {
+        queryParams.push(`finalDate=${filters.finalDate}`);
+      }
+      if (filters.product !== '') {
+        queryParams.push(`product=${filters.product}`);
+      }
+      query = queryParams.join('&');
+    }
+    
+    console.log('query:', query);
+
+    const response = (query) ? await api.get(`/reports/products?${query}`) : await api.get('/reports/products');
+    return response;
+  } catch(error) {
+    if (!error.response) {
+      return { networkError: 'Erro de conexão.'}
+    } else {
+      return error.response;
+    }
+  } 
 }
