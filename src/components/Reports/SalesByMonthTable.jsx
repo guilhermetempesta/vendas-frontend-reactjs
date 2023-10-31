@@ -107,7 +107,7 @@ export default function ProductTable() {
       <React.Fragment>
         <TableRow sx={{bgcolor: "#f4f4f4"}}>
           <TableCell 
-            style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} colSpan={3}
+            style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} colSpan={2}
           >Total</TableCell>
           <TableCell 
             align="right" style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} 
