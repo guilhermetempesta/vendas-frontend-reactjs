@@ -101,3 +101,16 @@ export const getCanceledSales = async (filters) => {
     }
   } 
 }
+
+export const getSalesSummary = async () => {
+  try {    
+    const response = await api.get('/reports/sales-summary');
+    return response;
+  } catch(error) {
+    if (!error.response) {
+      return { networkError: 'Erro de conexão.'}
+    } else {
+      return error.response;
+    }
+  } 
+}

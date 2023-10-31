@@ -16,12 +16,12 @@ const reports = [
     route: "/reports/sales",
     description: "Lista as vendas realizadas em um período.",
   },{
-    title: "Vendas por cliente/produto",
-    route: "/reports/salescustomeritem",
-    description: "Totaliza as vendas por cliente, listando os produtos mais vendidos",
+    title: "Vendas por dia",
+    route: "/reports/salesbyday",
+    description: "Totaliza as vendas por dia",
   },{
     title: "Resumo de vendas mensais",
-    route: "/reports/salesbymonth",
+    route: "/reports/salessummary",
     description: "Totaliza as vendas por mês.",
   },{
     title: "Vendas canceladas",
