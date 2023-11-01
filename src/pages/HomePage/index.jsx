@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import AlertSnackbar from "../../components/AlertSnackbar";
 import Title from "../../components/Title";
 import { Grid, Paper } from "@mui/material";
-import SalesChartCurrentMonth from "../../components/Dashboard/SalesChartCurrentMonth";
+import SalesChartLast30Days from "../../components/Dashboard/SalesChartLast30Days";
 import CurrentMonthSales from "../../components/Dashboard/CurrentMonthSales";
 import LastSalesTable from "../../components/Dashboard/LastSalesTable";
 import MonthlySalesChart from "../../components/Dashboard/MonthlySalesChart";
@@ -44,7 +44,7 @@ export default function HomePage (props) {
                   height: 240,
                 }}
               >
-                <SalesChartCurrentMonth />
+                <SalesChartLast30Days />
               </Paper>
             </Grid>
             <Grid item xs={12} md={4} lg={3}>

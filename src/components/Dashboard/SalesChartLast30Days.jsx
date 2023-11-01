@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import Title from '../Title';
 import { getMonthAndYear } from '../../commons/utils';
-import { getSalesCurrentMonth } from '../../services/dashboard';
+import { getSalesLast30Days } from '../../services/dashboard';
 import { clearUserData } from '../../commons/authVerify';
 import { useNavigate } from 'react-router-dom';
 
-export default function SalesChartCurrentMonth() {
+export default function SalesChartLast30Days() {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   
@@ -14,7 +14,7 @@ export default function SalesChartCurrentMonth() {
     window.scrollTo(0, 0);
   
     const loadData = async () => {
-      const response = await getSalesCurrentMonth();
+      const response = await getSalesLast30Days();
       console.log(response);
       
       if (response.networkError) {
@@ -37,20 +37,8 @@ export default function SalesChartCurrentMonth() {
   
   return (
     <React.Fragment>
-      <Title>Vendas Diárias: {getMonthAndYear()}</Title>
+      <Title>Vendas dos últimos 30 dias</Title>
       <ResponsiveContainer width="100%" height="100%">
-        {/* <LineChart
-          width={500}
-          height={300}
-          data={data}
-          margin={{ top: 10, right: 30, left: 20, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="_id" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="totalAmount" stroke="#8884d8" activeDot={{ r: 8 }} />
-        </LineChart> */}
         <AreaChart width={500} height={300} data={data}
           margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
           <defs>

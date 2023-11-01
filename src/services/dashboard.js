@@ -9,7 +9,7 @@ export const getTotalSalesCurrentMonth = async () => {
   } 
 }
 
-export const getSalesCurrentMonth = async () => {
+export const getSalesLast30Days = async () => {
   try {
     const response = await api.get(`/dashboard/sales-current-month/`);
     return response;

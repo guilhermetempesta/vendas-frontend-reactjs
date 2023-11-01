@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import Title from '../Title';
-import { currentDate, formatDatePtBr } from '../../commons/utils';
+import { currentDate, formatDatePtBr, getMonthAndYear } from '../../commons/utils';
 import { useNavigate } from 'react-router-dom';
 import { getTotalSalesCurrentMonth } from '../../services/dashboard';
 import { clearUserData } from '../../commons/authVerify';
@@ -44,7 +44,7 @@ export default function CurrentMonthSales() {
 
   return (
     <React.Fragment>
-      <Title>Total Vendas no Mês</Title>
+      <Title>Vendas ({getMonthAndYear()})</Title>
       <Typography component="p" variant="h4">
         R$ {data.totalSales.toFixed(2).replace(".",",")}
       </Typography>
