@@ -39,7 +39,7 @@ export default function CurrentMonthSales() {
  
   const handleClickLink = (event) => {
     event.preventDefault();
-    navigate("reports/salesbymonth");
+    navigate("reports/salessummary");
   };
 
   return (
@@ -55,7 +55,7 @@ export default function CurrentMonthSales() {
         {data.salesQuantity} vendas
       </Typography>
       <Typography color="text.secondary" sx={{ flex: 1 }}>
-        Média diária: {data.salesAveragePerDay.toFixed(2).replace(".",",")}
+        Valor médio (R$): {data.salesAverage.toFixed(2).replace(".",",")}
       </Typography>
       <div>
         <Link color="primary" onClick={(e) => handleClickLink(e)} sx={{ mt: 3, cursor: 'pointer' }}>

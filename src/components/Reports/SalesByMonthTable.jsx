@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 
-import { TableFooter, Typography } from "@mui/material";
+import { Divider, TableFooter, Typography, useMediaQuery } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -30,6 +30,7 @@ import { getSalesSummary } from "../../services/sale";
 
 export default function ProductTable() {
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width:600px)');
   
   const [showAlert, setShowAlert] = useState({show: false});
   const [isLoading, setIsLoading] = useState(false);
@@ -88,18 +89,28 @@ export default function ProductTable() {
           <TableCell component="th" scope="row">
             {row.name}
           </TableCell>
+          {(!isMobile) && <TableCell align="right">{row.salesQuantity.toFixed(2).replace(".",",")}</TableCell>}
           <TableCell align="right">{row.total.toFixed(2).replace(".",",")}</TableCell>
+          {(!isMobile) && <TableCell align="right">{row.averageSalesValue.toFixed(2).replace(".",",")}</TableCell>}
         </TableRow>
       </React.Fragment>
     );
   }
 
-  function SumaryTable() {
+  function TableFooter() {
     const invoiceTotal = (items) => {
       const totalSales = items.map(({ total }) => total).reduce((sum, i) => sum + i, 0);
       return totalSales.toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
+      });
+    }
+
+    const invoiceQuantity = (items) => {
+      const totalQuantity = items.map(({ salesQuantity }) => salesQuantity).reduce((sum, i) => sum + i, 0);
+      return totalQuantity.toLocaleString('pt-BR', {
+        minimumFractionDigits: 3,
+        maximumFractionDigits: 3,
       });
     }
 
@@ -109,9 +120,15 @@ export default function ProductTable() {
           <TableCell 
             style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} colSpan={2}
           >Total</TableCell>
+          {(!isMobile) && 
+            <TableCell 
+              align="right" style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} 
+            >{invoiceQuantity(rows)}</TableCell>
+          }
           <TableCell 
-            align="right" style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} 
+            align="right" style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }}
           >{invoiceTotal(rows)}</TableCell>
+          {(!isMobile) && <TableCell/>}
         </TableRow>
       </React.Fragment>
     );
@@ -173,7 +190,9 @@ export default function ProductTable() {
               <TableRow>
                 <TableCell></TableCell>
                 <TableCell>Mês</TableCell>
+                {(!isMobile) && <TableCell align="right">Quantidade</TableCell>}
                 <TableCell align="right">Valor (R$)</TableCell>
+                {(!isMobile) && <TableCell align="right">Valor Médio (R$)</TableCell>}
               </TableRow>  
             </TableHead>
             <TableBody>
@@ -182,7 +201,7 @@ export default function ProductTable() {
               ))}
             </TableBody>
             <TableFooter>
-              <SumaryTable/>
+              <TableFooter/>
             </TableFooter>
           </Table>
         </TableContainer>
@@ -206,9 +225,17 @@ export default function ProductTable() {
           {selectedMonth && (
             <DialogContent>
               <Typography variant="h6">Mês: {selectedMonth.name}</Typography>
+              <Divider/>
               <Typography variant="body1">
-                Total Vendido (R$): {selectedMonth.total.toFixed(2).replace(".",",")} 
+                Total de vendas (R$): {selectedMonth.total.toFixed(2).replace(".",",")} 
               </Typography>
+              <Typography variant="body1">
+                Quantidade de vendas: {selectedMonth.salesQuantity} 
+              </Typography>
+              <Typography variant="body1">
+                Valor médio da venda (R$): {selectedMonth.averageSalesValue.toFixed(2).replace(".",",")} 
+              </Typography>
+              <Divider/>
               <Typography variant="h6" style={{ marginTop: '16px' }}>
                 Top 3: Produtos
               </Typography>
@@ -223,7 +250,7 @@ export default function ProductTable() {
                   <TableHead sx={{backgroundColor: "#f4f4f4"}}>
                     <TableRow >
                       <TableCell>Produto</TableCell>
-                      <TableCell align="right">Quantidade</TableCell>
+                      <TableCell align="right">Quant.</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -231,13 +258,14 @@ export default function ProductTable() {
                       <TableRow key={index}>
                         <TableCell>{(item.name) ? item.name : '-'}</TableCell>
                         <TableCell align="right">
-                          {(item.amount) ? item.amount.toFixed(3).replace(".",",") : '0.00'}
+                          {(item.amount) ? item.amount : '0'}
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </div>
+              <Divider/>
               <Typography variant="h6" style={{ marginTop: '16px' }}>
                 Top 3: Clientes
               </Typography>
@@ -267,6 +295,7 @@ export default function ProductTable() {
                   </TableBody>
                 </Table>
               </div>
+              <Divider/>
               <Typography variant="h6" style={{ marginTop: '16px' }}>
                 Top 3: Vendedores
               </Typography>
