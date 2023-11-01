@@ -287,6 +287,7 @@ export default function ProductsTable() {
           <DialogContent>
             <Box>
               <TextField
+                sx={{marginTop: '10px'}}
                 label="Produto"
                 value={dialogFilters.name}
                 onChange={(e) =>

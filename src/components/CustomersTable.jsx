@@ -274,6 +274,7 @@ export default function CustomersTable() {
           <DialogContent>
             <Box>
               <TextField
+                sx={{marginTop: '10px'}}
                 label="Cliente"
                 value={dialogFilters.name}
                 onChange={(e) =>

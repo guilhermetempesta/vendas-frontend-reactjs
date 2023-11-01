@@ -271,6 +271,7 @@ export default function UsersTable() {
           <DialogContent>
             <Box>
               <TextField
+                sx={{marginTop: '10px'}}
                 label="Usuário"
                 value={dialogFilters.name}
                 onChange={(e) =>

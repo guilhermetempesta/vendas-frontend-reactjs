@@ -20,6 +20,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone';
 import PeopleTwoToneIcon from '@mui/icons-material/PeopleTwoTone';
 import BuildIcon from '@mui/icons-material/Build';
@@ -107,9 +108,9 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const menuItemsAdmin = [
   {
-    text: 'Início',
+    text: 'Dashboard',
     path: '/',
-    imageIndex: 0
+    imageIndex: -1
   },{
     text: 'Produtos',
     path: '/products',
@@ -261,17 +262,19 @@ export default function Layout({children}) {
               }}
             >
               {
-                element.imageIndex === 0 ? <HomeTwoToneIcon/> : (
-                  element.imageIndex === 1 ? <ViewInArTwoToneIcon/> : (
-                    element.imageIndex === 2 ? <PeopleTwoToneIcon/> : ( 
-                      element.imageIndex === 3 ? <AddShoppingCartIcon/> : (
-                        element.imageIndex === 4 ? <FeedTwoToneIcon/> : (
-                          element.imageIndex === 5 ? <PeopleAltTwoToneIcon/> : <BuildIcon/>
+                element.imageIndex === -1 ? <DashboardIcon/>: (
+                  element.imageIndex === 0 ? <HomeTwoToneIcon/> : (
+                    element.imageIndex === 1 ? <ViewInArTwoToneIcon/> : (
+                      element.imageIndex === 2 ? <PeopleTwoToneIcon/> : ( 
+                        element.imageIndex === 3 ? <AddShoppingCartIcon/> : (
+                          element.imageIndex === 4 ? <FeedTwoToneIcon/> : (
+                            element.imageIndex === 5 ? <PeopleAltTwoToneIcon/> : <BuildIcon/>
+                          )
                         )
                       )
                     )
                   )
-                )
+                )  
               }
             </ListItemIcon>
             <ListItemText primary={element.text} sx={{ opacity: open ? 1 : 0 }} />

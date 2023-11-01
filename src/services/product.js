@@ -1,14 +1,19 @@
 import { api } from './api'
 
-export const getProducts = async (searchTerm) => {
+export const getProducts = async (filters) => {
   try {
-    let url = '/products';
-    
-    if (searchTerm) {
-      url += `?search=${encodeURIComponent(searchTerm)}`;
-    }
+    const queryParams = [];
+    let query = null;
 
-    const response = await api.get(url);
+    if (filters) {      
+      if (filters.name !== '') {
+        queryParams.push(`search=${filters.name}`);
+      }
+      query = queryParams.join('&');
+    }    
+    console.log('query:', query);
+
+    const response = (query) ? await api.get(`/products?${query}`) : await api.get('/products');
     return response;
   } catch (error) {
     if (!error.response) {

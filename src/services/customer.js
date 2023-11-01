@@ -1,8 +1,19 @@
 import { api } from './api'
 
-export const getCustomers = async () => {
+export const getCustomers = async (filters) => {
   try {
-    const response = await api.get('/customers');
+    const queryParams = [];
+    let query = null;
+
+    if (filters) {      
+      if (filters.name !== '') {
+        queryParams.push(`name=${filters.name}`);
+      }
+      query = queryParams.join('&');
+    }    
+    console.log('query:', query);
+    
+    const response = (query) ? await api.get(`/customers?${query}`) : await api.get('/customers');
     console.log(response)
     return response;
   } catch(error) {
