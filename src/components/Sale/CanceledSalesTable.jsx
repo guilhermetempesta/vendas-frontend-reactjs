@@ -197,7 +197,10 @@ export default function CanceledSalesTable() {
   return (
     <div>
       <Title>
-        <h2 style={{marginBottom: '4px'}}>Vendas Canceladas</h2>
+        <span style={{marginBottom: '4px'}}>
+          <h2 style={{marginBottom: '4px'}}>Vendas Canceladas</h2>
+          <p style={{margin: '2px'}}>{`${formatDatePtBr(filters.initialDate)} - ${formatDatePtBr(filters.finalDate)}`}</p>
+        </span>
         {(!isLoading) &&
         <span>
           <IconButton

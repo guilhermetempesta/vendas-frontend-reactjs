@@ -245,8 +245,11 @@ export default function SalesDetailTable() {
 
   return (
     <div>
-      <Title>
-        <h2 style={{marginBottom: '4px'}}>Vendas</h2>
+      <Title>        
+        <span style={{marginBottom: '4px'}}>
+          <h2 style={{marginBottom: '4px'}}>Vendas</h2>
+          <p style={{margin: '2px'}}>{`${formatDatePtBr(filters.initialDate)} - ${formatDatePtBr(filters.finalDate)}`}</p>
+        </span>
         {(!isLoading) &&
         <span>
           <IconButton

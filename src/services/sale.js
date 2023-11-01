@@ -114,3 +114,32 @@ export const getSalesSummary = async () => {
     }
   } 
 }
+
+export const getSalesByDay = async (filters) => {
+  try {
+    const queryParams = [];
+    let query = null;
+
+    if (filters) {
+      if (filters.initialDate) {
+        queryParams.push(`initialDate=${filters.initialDate}`);
+      }
+      if (filters.finalDate) {
+        queryParams.push(`finalDate=${filters.finalDate}`);
+      }
+      query = queryParams.join('&');
+    }
+    
+    console.log('query:', query);
+
+    const response = await api.get(`/reports/sales-by-day?${query}`);
+    return response;
+  } catch(error) {
+    if (!error.response) {
+      return { networkError: 'Erro de conexão.'}
+    } else {
+      return error.response;
+    }
+  } 
+}
+

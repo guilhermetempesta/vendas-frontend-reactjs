@@ -24,20 +24,19 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import Collapse from '@mui/material/Collapse';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import SaveAltIcon from '@mui/icons-material/SaveAlt';
 
-import { getComissions } from "../../services/comission";
 import { currentDate, firstDayOfMonth, formatDatePtBr } from '../../commons/utils';
 import { useNavigate } from "react-router-dom";
 import { clearUserData } from "../../commons/authVerify";
 
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import PDFGenerator from "../PDFGenerator";
+// import { PDFDownloadLink } from "@react-pdf/renderer";
+// import PDFGenerator from "../PDFGenerator";
 
 import AlertSnackbar from "../AlertSnackbar";
 import Title from "../Title";
+import { getSalesByDay } from "../../services/sale";
 
-export default function ComissionTable() {
+export default function SalesByDayTable() {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width:600px)');
   
@@ -47,8 +46,7 @@ export default function ComissionTable() {
   const [openDialog, setOpenDialog] = useState(false);
   const [filters, setFilters] = useState({
     initialDate: firstDayOfMonth().toISOString().split('T')[0],
-    finalDate: currentDate().toISOString().split('T')[0],
-    user: '',
+    finalDate: currentDate().toISOString().split('T')[0]
   });
   const [dialogFilters, setTemporaryFilters] = useState({ ...filters });
   const [hasFilters, setHasFilters] = useState(false);
@@ -56,9 +54,9 @@ export default function ComissionTable() {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    const loadComissions = async () => {
+    const loadSalesByDay = async () => {
       setIsLoading(true);
-      const response = await getComissions(filters);
+      const response = await getSalesByDay(filters);
       console.log(response);
       
       if (response.networkError) {
@@ -80,7 +78,7 @@ export default function ComissionTable() {
     };
 
     console.log('useEffect')
-    loadComissions(navigate, filters);
+    loadSalesByDay(navigate, filters);
   }, [navigate, filters]);
   
   const handleFilterClick = () => {
@@ -92,8 +90,7 @@ export default function ComissionTable() {
     setOpenDialog(false);
     const filtersApplied =
       dialogFilters.initialDate.split('T')[0] !== firstDayOfMonth().toISOString().split('T')[0] ||
-      dialogFilters.finalDate.split('T')[0] !== currentDate().toISOString().split('T')[0] ||
-      dialogFilters.user !== '';
+      dialogFilters.finalDate.split('T')[0] !== currentDate().toISOString().split('T')[0];
 
     setHasFilters(filtersApplied);
     setFilters({ ...dialogFilters });
@@ -106,8 +103,7 @@ export default function ComissionTable() {
   const handleFilterClear = () => {
     setTemporaryFilters({
       initialDate: firstDayOfMonth().toISOString().split('T')[0],
-      finalDate: currentDate().toISOString().split('T')[0],
-      user: '',
+      finalDate: currentDate().toISOString().split('T')[0]
     });
   };
   
@@ -128,10 +124,10 @@ export default function ComissionTable() {
             </IconButton>
           </TableCell>
           <TableCell component="th" scope="row">
-            {row.user.name}
+            {row._id}
           </TableCell>
           <TableCell align="right">{row.totalSales.toFixed(2).replace(".",",")}</TableCell>
-          <TableCell align="right">{row.totalComission.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell align="right">{row.totalAmount}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -143,21 +139,19 @@ export default function ComissionTable() {
                 <Table size="small" aria-label="purchases">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Date</TableCell>
+                      <TableCell>Código</TableCell>
                       <TableCell>Cliente</TableCell>
-                      <TableCell align="right">Valor</TableCell>
-                      <TableCell align="right">Comissão</TableCell>
+                      <TableCell align="right">Total</TableCell>
+                      <TableCell>Vendedor</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {row.sales.map((item, index) => (
                       <TableRow key={index}>
-                        <TableCell component="th" scope="row">
-                          {formatDatePtBr(item.date)}
-                        </TableCell>
+                        <TableCell>{item.code}</TableCell>
                         <TableCell>{item.customer.name}</TableCell>
-                        <TableCell align="right">{item.totalValue.toFixed(2).replace(".",",")}</TableCell>
-                        <TableCell align="right">{item.comissionValue.toFixed(2).replace(".",",")}</TableCell>
+                        <TableCell align="right">{item.total.toFixed(2).replace(".",",")}</TableCell>
+                        <TableCell>{item.user.name}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -173,22 +167,30 @@ export default function ComissionTable() {
   function SumaryTable() {
     
     const invoiceTotal = (items) => {
-      const totalComissions = items.map(({ totalComission }) => totalComission).reduce((sum, i) => sum + i, 0);
-      return totalComissions.toLocaleString('pt-BR', {
+      const totalSales = items.map(({ totalSales }) => totalSales).reduce((sum, i) => sum + i, 0);
+      return totalSales.toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
+    }
+
+    const invoiceAmount = (items) => {
+      const totalAmount = items.map(({ totalAmount }) => totalAmount).reduce((sum, i) => sum + i, 0);
+      return totalAmount;
     }
 
     return (
       <React.Fragment>
         <TableRow sx={{bgcolor: "#f4f4f4"}}>
           <TableCell 
-            style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} colSpan={3}
+            style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }} colSpan={2}
           >Total</TableCell>
           <TableCell 
             align="right" style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }}
           >{invoiceTotal(rows)}</TableCell>
+          <TableCell 
+            align="right" style={{ color: 'rgb(25,118,210)', fontSize: '1rem', fontWeight: 'bold' }}
+          >{invoiceAmount(rows)}</TableCell>
         </TableRow>
       </React.Fragment>
     );
@@ -196,19 +198,19 @@ export default function ComissionTable() {
 
   Row.propTypes = {
     row: PropTypes.shape({
-      user: PropTypes.shape({
-        name: PropTypes.string.isRequired,
-      }),
+      _id: PropTypes.string.isRequired,
       totalSales: PropTypes.number.isRequired,
-      totalComission: PropTypes.number.isRequired,
+      totalAmount: PropTypes.number.isRequired,
       sales: PropTypes.arrayOf(
         PropTypes.shape({
+          code: PropTypes.string.isRequired,
+          total: PropTypes.number.isRequired,
           customer: PropTypes.shape({
             name: PropTypes.string.isRequired,
           }),
-          date: PropTypes.string.isRequired,
-          totalValue: PropTypes.number.isRequired,
-          comissionValue: PropTypes.number.isRequired,
+          user: PropTypes.shape({
+            name: PropTypes.string.isRequired,
+          }),
         })
       ).isRequired,
     }).isRequired,
@@ -216,9 +218,9 @@ export default function ComissionTable() {
 
   return (
     <div>
-      <Title>        
+      <Title>
         <span style={{marginBottom: '4px'}}>
-        <h2 style={{marginBottom: '4px'}}>Comissões</h2>
+          <h2 style={{marginBottom: '4px'}}>Vendas por dia</h2>
           <p style={{margin: '2px'}}>{`${formatDatePtBr(filters.initialDate)} - ${formatDatePtBr(filters.finalDate)}`}</p>
         </span>
         {(!isLoading) &&
@@ -231,7 +233,7 @@ export default function ComissionTable() {
               <FilterListIcon />
             </Badge>
           </IconButton>
-          <PDFDownloadLink document={<PDFGenerator data={rows} type='comissions'/>} fileName="Comissoes.pdf">  
+          {/* <PDFDownloadLink document={<PDFGenerator data={rows} type='comissions'/>} fileName="Comissoes.pdf">  
             {({ loadingReport }) =>
               loadingReport ? (
                 <CircularProgress />
@@ -245,7 +247,7 @@ export default function ComissionTable() {
                 </IconButton>
               )
             }
-          </PDFDownloadLink>
+          </PDFDownloadLink> */}
         </span>}  
       </Title>
       {(isLoading) ? (
@@ -267,9 +269,9 @@ export default function ComissionTable() {
             <TableHead sx={{bgcolor: '#f4f4f4'}}>
               <TableRow>
                 <TableCell />
-                <TableCell>Vendedor</TableCell>
-                <TableCell align="right">Vendas</TableCell>
-                <TableCell align="right">Comissão</TableCell>
+                <TableCell>Data</TableCell>
+                <TableCell align="right">Total (R$)</TableCell>
+                <TableCell align="right">Qtde Vendas</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

@@ -37,6 +37,7 @@ import ComissionReportPage from "../pages/ReportsPage/ComissionReportPage";
 import CanceledSalesReportPage from "../pages/ReportsPage/CanceledSalesReportPage";
 import ProductReportPage from "../pages/ReportsPage/ProductsReportPage";
 import SalesSummaryReportPage from "../pages/ReportsPage/SalesSummaryReportPage";
+import SalesByDayReportPage from "../pages/ReportsPage/SalesByDayReportPage";
 
 const AppRoutes = () => {
 
@@ -90,6 +91,7 @@ const AppRoutes = () => {
             <Route exact path="/reports/comission" element={<Private><Layout><ComissionReportPage/></Layout></Private>}/>
             <Route exact path="/reports/products" element={<Private><Layout><ProductReportPage/></Layout></Private>}/>
             <Route exact path="/reports/salessummary" element={<Private><Layout><SalesSummaryReportPage/></Layout></Private>}/>
+            <Route exact path="/reports/salesbyday" element={<Private><Layout><SalesByDayReportPage/></Layout></Private>}/>
             <Route exact path="/cart" element={<Private><Layout><CartPage/></Layout></Private>}/>
             <Route exact path="/cart-checkout" element={<Private><Layout><CartCheckoutPage/></Layout></Private>}/>
             {/* test routes */}
