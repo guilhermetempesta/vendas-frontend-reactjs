@@ -31,11 +31,11 @@ export const getProductsPagination = async (page, searchTerm) => {
     if (searchTerm) {
       url += `?search=${encodeURIComponent(searchTerm)}`;
       if (page) {
-        url += `&page=${page}&limit=10`;
+        url += `&page=${page}&limit=50`;
       }
     } else {
       if (page) {
-        url += `?page=${page}&limit=10`;
+        url += `?page=${page}&limit=50`;
       }
     }
 
