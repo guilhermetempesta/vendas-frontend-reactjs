@@ -39,6 +39,9 @@ const steps = [
     label: 'Opções de desconto'
   },
   {
+    label: 'Observação'
+  },
+  {
     label: 'Finalização da venda'
   },
 ];
@@ -63,7 +66,8 @@ export default function CheckoutStepper() {
   const [editingDiscount, setEditingDiscount] = useState(false);
   const [editedDiscount, setEditedDiscount] = useState(0)
   const [discount, setDiscount] = useState(0); 
-  const [total, setTotal] = useState(getCartTotal() - discount); 
+  const [total, setTotal] = useState(getCartTotal() - discount);
+  const [comments, setComments] = useState(""); 
 
   const handleEditDiscount = () => {
     setEditingDiscount(true);
@@ -187,7 +191,8 @@ export default function CheckoutStepper() {
       discount: discount,
       addition: 0.00,
       total: total,
-      items: saleItems
+      items: saleItems,
+      comments: comments
     };
  
     console.log(sale);
@@ -231,6 +236,10 @@ export default function CheckoutStepper() {
         return (
           <Typography variant="caption">{`R$ ${parseFloat(discount).toFixed(2).replace('.', ',')}`}</Typography>
         );
+      case 2:
+        return (
+          <Typography variant="caption">{comments}</Typography>
+        );  
       default: 
         return null;
     }
@@ -365,6 +374,18 @@ export default function CheckoutStepper() {
             )}
           </div>
         );
+      case 2:
+        return(
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Typography sx={{ marginRight: '8px' }}></Typography>
+            <input
+              type="text"
+              value={comments}
+              onChange={(e) => setComments(e.target.value)}
+              // style={{ height: '25px', width: '70px', textAlign: 'left' }}
+            />
+          </div>
+        );      
       default:
         return null;
     }

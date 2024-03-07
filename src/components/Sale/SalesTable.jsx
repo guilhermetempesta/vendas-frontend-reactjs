@@ -341,9 +341,14 @@ export default function SalesDetailTable() {
           </DialogTitle>
           {selectedSale && (
             <DialogContent>
-              <Typography variant="h6">Código: {selectedSale.code}</Typography>
+              <Typography variant="h6" style={{ textAlign: 'right'}}>
+                Código: {selectedSale.code.toString().padStart(6, '0')}
+              </Typography>
               <Typography variant="body1">Data: {formatDatePtBr(selectedSale.date)}</Typography>
               <Typography variant="body1">{selectedSale.customer.name}</Typography>
+              <Typography variant="body2" style={{ fontSize: '0.8rem' }}>
+                Obs.: {selectedSale.comments}
+              </Typography>
           
               <Typography variant="h6" style={{ marginTop: '16px' }}>
                 Itens da Venda:
