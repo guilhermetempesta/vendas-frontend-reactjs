@@ -31,7 +31,8 @@ export default function ProductPage() {
     description: '',
     price: 0.00,
     cost: 0.00,
-    active: true
+    active: true,
+    decimal: false
   });
   const [editMode, setEditMode] = useState(false);
   const [showAlert, setShowAlert] = useState({show: false});
@@ -52,7 +53,8 @@ export default function ProductPage() {
             description: response.data.description,
             price: response.data.price,
             cost: response.data.cost,
-            active: response.data.active
+            active: response.data.active,
+            decimal: response.data.decimal
           };
           setProduct(productFromRes);  
         };
@@ -76,7 +78,8 @@ export default function ProductPage() {
       description: product.description,
       price: product.price,
       cost: product.cost,
-      active: product.active
+      active: product.active,
+      decimal: product.decimal
     }
 
     if (editMode) {
@@ -226,7 +229,18 @@ export default function ProductPage() {
               }
             /> 
           </Grid>
-          }                
+          }          
+          <Grid item xs={12} md={4} sm={12}>
+            <FormControlLabel 
+              label="Venda com quantidade fracionada" 
+              control={ 
+                <Checkbox 
+                  checked={(product.decimal)}
+                  onChange={(e) => setProduct({...product, decimal: e.target.checked})}
+                />
+              }
+            /> 
+          </Grid>                
         </Grid>
         <Box            
           sx={{ marginTop: 2, marginBottom: 2 }}

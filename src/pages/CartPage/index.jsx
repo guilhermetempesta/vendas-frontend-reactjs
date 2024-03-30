@@ -87,7 +87,7 @@ export default function CartPage() {
                       </Typography>
                     }
 
-                    <Grid container spacing={1} alignItems="center">
+                    <Grid container spacing={1} alignItems="center" height={'40px'}>
                       <Grid item>
                         <IconButton 
                           size="small"
@@ -95,12 +95,15 @@ export default function CartPage() {
                         >-</IconButton>
                       </Grid>
                       <Grid item>
-                        <input
+                        <input 
                           type="number"
                           value={item.quantity}
                           min="1"
                           onChange={(e) => handleChangeItemQuantity(item.cartItemId, Number(e.target.value))}
-                          style={{ width: '40px', textAlign: 'center' }}
+                          style={{ 
+                            height: '30px', width: '70px', textAlign: 'center', 
+                            padding: '2px', marginTop: '4px' 
+                          }}
                         />
                       </Grid>
                       <Grid item>

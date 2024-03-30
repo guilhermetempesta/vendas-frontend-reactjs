@@ -24,6 +24,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 import { deleteSale, getSales } from "../../services/sale";
 import { currentDate, firstDayOfMonth, formatDatePtBr, isWithinDateLimit, statusSuccess, statusWarning } from '../../commons/utils';
@@ -129,6 +130,11 @@ export default function SalesDetailTable() {
     }
     
     setOpenModal(true);
+  };
+
+  const handleEditSale = async (id) => {
+    console.log('editar venda');
+    navigate(`/edit-sale/${id}`);
   };
   
   const handleCloseModal = async (confirmed) => {
@@ -326,18 +332,20 @@ export default function SalesDetailTable() {
               alignItems: 'center',
               color: 'rgb(235, 235, 235)',
               bgcolor: 'rgb(25, 118, 210)',
-              padding: '16px', 
+              padding: '16px',
             }}
           >
             Detalhes da Venda
-            {(user.role === 'admin') && (
-              <IconButton
-                sx={{ color: "white" }}
-                onClick={handleDeleteSale}
-              >
-                <DeleteIcon/>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {user.role === 'admin' && (
+                <IconButton sx={{ color: 'white' }} onClick={handleDeleteSale}>
+                  <DeleteIcon />
+                </IconButton>
+              )}
+              <IconButton sx={{ color: 'white' }} onClick={handleEditSale}>
+                <EditIcon />
               </IconButton>
-            )}  
+            </div>
           </DialogTitle>
           {selectedSale && (
             <DialogContent>

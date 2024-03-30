@@ -9,7 +9,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
-import { IconButton, InputBase, Paper, Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid } from '@mui/material';
+import { IconButton, InputBase, Paper, Dialog, DialogTitle, DialogContent, DialogActions, Button, Grid, OutlinedInput, InputLabel, FormControl } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
 import { CartContext } from '../../contexts/cart';
 
@@ -239,22 +239,42 @@ const ItemsList = () => {
                 </div>
               )}
             </div>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item>
-                <IconButton onClick={() => setQuantity(Math.max(quantity - 1, 1))}>-</IconButton>
-              </Grid>
-              <Grid item>
-                <input
-                  type="number"
-                  value={quantity}
-                  min="1"
-                  onChange={(e) => setQuantity(Math.max(Number(e.target.value), 1))}
-                  style={{ width: '50px', textAlign: 'center' }}
-                />
-              </Grid>
-              <Grid item>
-                <IconButton onClick={() => setQuantity(quantity + 1)}>+</IconButton>
-              </Grid>
+            <Grid container spacing={2} alignItems="center" height={'70px'}>
+              {selectedItem.decimal ? (
+                <Grid item>
+                  <FormControl fullWidth style={{padding: '2px', marginTop: '4px'}}>
+                    <InputLabel htmlFor="price">Preço</InputLabel>
+                    <OutlinedInput
+                      id="decimal-quantity"
+                      type="number" 
+                      value={quantity}
+                      min="1"
+                      onChange={(e) => { setQuantity(e.target.value) }} 
+                      label="Quantidade"
+                    />
+                  </FormControl>
+                </Grid>
+              ) : (
+                <>
+                  <Grid item> 
+                    <IconButton onClick={() => setQuantity(Math.max(quantity - 1, 1))}>-</IconButton>
+                  </Grid>
+                  <Grid item>
+                    <input
+                      type="number"
+                      value={quantity}
+                      min="1"
+                      onChange={(e) => setQuantity(Math.max(Number(e.target.value), 1))}
+                      style={{ width: '60px', height: '40px', textAlign: 'center' }}
+                    />
+                  </Grid>
+                  <Grid item>
+                    <IconButton onClick={() => setQuantity(quantity + 1)}>+</IconButton>
+                  </Grid>
+                </> 
+              )}
+              
+              
             </Grid>
             {/* Calcula e exibe o total do item */}
             <Typography variant="h6" color="blue">

@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import { useMediaQuery } from "@mui/material";
 
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
@@ -48,6 +49,7 @@ const steps = [
 
 export default function CheckoutStepper() {
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width:600px)');
   const { clearCart, cartItems, getCartTotal } = useContext(CartContext);
   
   const [showAlert, setShowAlert] = useState({show: false});
@@ -249,10 +251,9 @@ export default function CheckoutStepper() {
     switch (stepIndex) {
       case 0:
         return (
-          <>
-            <Box 
-              sx={{ cursor: 'pointer' }}
-              
+          <Box sx={{ width: '100%', curson: 'pointer' }}>
+            <div 
+              style={{ padding: (isMobile) ? '2px' : '16px' }}
             >
               <Link 
                 onClick={openCustomerDialog} 
@@ -261,7 +262,7 @@ export default function CheckoutStepper() {
               >
                 {(selectedCustomer.name) ? selectedCustomer.name : 'Selecionar Cliente'}
               </Link>
-            </Box>
+            </div>
             <Dialog
               open={isCustomerDialogOpen}
               onClose={closeCustomerDialog}
@@ -343,19 +344,22 @@ export default function CheckoutStepper() {
                 </Button>
               </DialogActions>
             </Dialog>
-          </>  
+          </Box>  
         );
       case 1:
         return (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', padding: (isMobile) ? '2px' : '16px' }}>
             {editingDiscount ? (
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography sx={{ marginRight: '8px' }}>R$</Typography>
+                <Typography sx={{ marginRight: '8px' }}>
+                  {isMobile ? 'R$' : 'Desconto: R$'}
+                </Typography>
                 <input
                   type="number"
                   value={editedDiscount}
                   onChange={(e) => setEditedDiscount(e.target.value)}
                   style={{ height: '25px', width: '70px', textAlign: 'right' }}
+                  fullWidth
                 />
                 <IconButton onClick={handleConfirmDiscountEdit}>
                   <CheckIcon />
@@ -366,7 +370,12 @@ export default function CheckoutStepper() {
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="body1">{`R$ ${parseFloat(discount).toFixed(2).replace('.', ',')}`}</Typography>
+                <Typography variant="body1">
+                  {isMobile 
+                    ? `R$ ${parseFloat(discount).toFixed(2).replace('.', ',')}`
+                    : `Desconto: R$ ${parseFloat(discount).toFixed(2).replace('.', ',')}`
+                  }
+                </Typography>
                 <IconButton onClick={handleEditDiscount}>
                   <EditIcon />
                 </IconButton>
@@ -375,17 +384,20 @@ export default function CheckoutStepper() {
           </div>
         );
       case 2:
-        return(
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Typography sx={{ marginRight: '8px' }}></Typography>
-            <input
-              type="text"
-              value={comments}
-              onChange={(e) => setComments(e.target.value)}
-              // style={{ height: '25px', width: '70px', textAlign: 'left' }}
-            />
-          </div>
-        );      
+        return (
+          <Box sx={{ width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', width: '100%', padding: (isMobile) ? '2px' : '16px'}}>
+              <Typography sx={{ marginRight: '8px' }}></Typography>
+              <TextField
+                multiline
+                rows={4}
+                value={comments}
+                onChange={(e) => setComments(e.target.value)}
+                fullWidth  // Adicionando a propriedade fullWidth para ocupar toda a largura disponível
+              />
+            </div>
+          </Box>
+        );
       default:
         return null;
     }
@@ -443,57 +455,77 @@ export default function CheckoutStepper() {
           <CircularProgress />
         </div>
       ) : (
-        <Box sx={{ maxWidth: 400 }}>
-          <Stepper activeStep={activeStep} orientation="vertical">
-            {steps.map((step, index) => (
-              <Step key={step.label}>
-                <StepLabel
-                  optional={renderOptionalInfo(index)}
-                >
-                  {step.label}
-                </StepLabel>
-                <StepContent>
-                  {renderStepContent(index)}
-                  {(!isSuccess) && <Box sx={{ mb: 2 }}>
-                    <div>
-                      <Button
-                        disabled={index === 0}
-                        onClick={handleBack}
-                        sx={{ mt: 1, mr: 1 }}
-                      >
-                        Anterior
-                      </Button>
-                      <Button
-                        variant="contained"
-                        onClick={(e) => (index === steps.length - 1) ? handleSubmit(e) : handleNext(e)}
-                        sx={{ mt: 1, mr: 1 }}
-                      >
-                        {index === steps.length - 1 ? 'Finalizar' : 'Próximo'}
-                      </Button>
-                    </div>
-                  </Box>}
-                </StepContent>
-              </Step>
-            ))}
-          </Stepper>
-          {/* {activeStep === steps.length && (
-            <Paper square elevation={0} sx={{ p: 3, marginTop: '8px'}}>
-              <Button 
-                onClick={handleBack} 
-                sx={{ mt: 1, mr: 1 }}
-              >
-                Voltar
-              </Button>
-              <Button 
-                onClick={handleSubmit} 
-                sx={{ mt: 1, mr: 1 }}
-                variant="contained"
-              >
-                Finalizar
-              </Button>
-            </Paper>
-          )} */}
-        </Box>
+        <>
+          {(isMobile) ? (
+            <Box sx={{ width: '100%' }}>          
+              <Stepper activeStep={activeStep} orientation="vertical">
+                {steps.map((step, index) => (
+                  <Step key={step.label}>
+                    <StepLabel
+                      optional={renderOptionalInfo(index)}
+                    >
+                      {step.label}
+                    </StepLabel>
+                    <StepContent>
+                      {renderStepContent(index)}
+                      {(!isSuccess) && <Box sx={{ mb: 2 }}>
+                        <div>
+                          <Button
+                            disabled={index === 0}
+                            onClick={handleBack}
+                            sx={{ mt: 1, mr: 1 }}
+                          >
+                            Anterior
+                          </Button>
+                          <Button
+                            variant="contained"
+                            onClick={(e) => (index === steps.length - 1) ? handleSubmit(e) : handleNext(e)}
+                            sx={{ mt: 1, mr: 1 }}
+                          >
+                            {index === steps.length - 1 ? 'Finalizar' : 'Próximo'}
+                          </Button>
+                        </div>
+                      </Box>}
+                    </StepContent>
+                  </Step>
+                ))}
+              </Stepper>
+            </Box>  
+          ) : (
+            <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+              <Stepper activeStep={activeStep}>
+                {steps.map((step, index) => (
+                  <Step key={step.label}>
+                    <StepLabel>{step.label}</StepLabel>
+                  </Step>                  
+                ))}
+              </Stepper>              
+              <Box sx={{ flexGrow: 1 }}>
+                {renderStepContent(activeStep)}
+              </Box>
+              <Box>
+                {(!isSuccess) && (
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Button
+                      disabled={activeStep === 0}
+                      onClick={handleBack}
+                      sx={{ mt: 1, mr: 1 }}
+                    >
+                      Anterior
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={(e) => (activeStep === steps.length - 1) ? handleSubmit(e) : handleNext(e)}
+                      sx={{ mt: 1, mr: 1 }}
+                    >
+                      {activeStep === steps.length - 1 ? 'Finalizar' : 'Próximo'}
+                    </Button>
+                  </Box>
+                )}
+              </Box>
+            </Box>  
+          )}           
+        </>
       )}
       {
         (showAlert.show === true) &&  
