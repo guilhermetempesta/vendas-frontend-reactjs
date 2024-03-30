@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useMediaQuery } from "@mui/material";
 
@@ -24,7 +24,7 @@ import TextField from "@mui/material/TextField";
 import SearchIcon from "@mui/icons-material/Search";
 
 import { CartContext } from "../contexts/cart";
-import { addSale } from "../services/sale";
+import { addSale, editSale } from "../services/sale";
 import { statusSuccess, statusWarning } from "../commons/utils";
 import Title from "./Title";
 import AlertSnackbar from "./AlertSnackbar";
@@ -50,7 +50,7 @@ const steps = [
 export default function CheckoutStepper() {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width:600px)');
-  const { clearCart, cartItems, getCartTotal } = useContext(CartContext);
+  const { clearCart, cartItems, getCartTotal, cartEditMode, cartEditInfo } = useContext(CartContext);
   
   const [showAlert, setShowAlert] = useState({show: false});
   const [isLoading, setIsLoading] = useState(false);
@@ -70,6 +70,14 @@ export default function CheckoutStepper() {
   const [discount, setDiscount] = useState(0); 
   const [total, setTotal] = useState(getCartTotal() - discount);
   const [comments, setComments] = useState(""); 
+
+  useEffect(() => {    
+    window.scrollTo(0, 0);     
+    if (cartEditMode) {
+      setSelectedCustomer(cartEditInfo.customer);
+      setComments(cartEditInfo.comments);
+    }    
+  }, [cartEditMode, cartEditInfo]);
 
   const handleEditDiscount = () => {
     setEditingDiscount(true);
@@ -164,7 +172,9 @@ export default function CheckoutStepper() {
       return;
     }
 
-    let saleItems = [];
+    let response;
+
+    let saleItems = [];    
     cartItems.forEach(element => {
       const item = {};
       item.product = element.id;
@@ -176,32 +186,56 @@ export default function CheckoutStepper() {
       saleItems.push(item);
     });
 
-    const subTotal = getCartTotal();
+    const subTotal = getCartTotal();    
 
-    // Especifique o fuso horário 'America/Sao_Paulo' para o Brasil
-    const timeZone = 'America/Sao_Paulo';
+    if (cartEditMode) {
+      
+      const sale = {
+        id: cartEditInfo.saleId,
+        code: cartEditInfo.saleCode,
+        customer: selectedCustomer._id,
+        subtotal: subTotal,
+        discount: discount,
+        addition: 0.00,
+        total: total,
+        items: saleItems,
+        comments: comments
+      };
+  
+      console.log(sale);
+      
+      setIsLoading(true);
+      response = await editSale(sale);
+      setIsLoading(false);
 
-    // Obtenha a data e hora atual no fuso horário especificado
-    const currentDate = DateTime.now().setZone(timeZone).toISO();
+    } else {
+      
+      // Especifique o fuso horário 'America/Sao_Paulo' para o Brasil
+      const timeZone = 'America/Sao_Paulo';
 
-    console.log(currentDate.toString());
-    
-    const sale = {
-      customer: selectedCustomer._id,
-      date: currentDate,
-      subtotal: subTotal,
-      discount: discount,
-      addition: 0.00,
-      total: total,
-      items: saleItems,
-      comments: comments
-    };
- 
-    console.log(sale);
-    
-    setIsLoading(true);
-    const response = await addSale(sale);
-    setIsLoading(false);
+      // Obtenha a data e hora atual no fuso horário especificado
+      const currentDate = DateTime.now().setZone(timeZone).toISO();
+
+      console.log(currentDate.toString());
+      
+      const sale = {
+        customer: selectedCustomer._id,
+        date: currentDate,
+        subtotal: subTotal,
+        discount: discount,
+        addition: 0.00,
+        total: total,
+        items: saleItems,
+        comments: comments
+      };
+  
+      console.log(sale);
+      
+      setIsLoading(true);
+      response = await addSale(sale);
+      setIsLoading(false);
+
+    };    
     
     if (statusSuccess.includes(response.status)) {      
       setIsSuccess(true);
@@ -259,6 +293,7 @@ export default function CheckoutStepper() {
                 onClick={openCustomerDialog} 
                 underline='hover'
                 variant='h6'
+                sx={{ cursor: 'pointer' }}
               >
                 {(selectedCustomer.name) ? selectedCustomer.name : 'Selecionar Cliente'}
               </Link>
@@ -276,7 +311,7 @@ export default function CheckoutStepper() {
               <DialogTitle
                 sx={{
                   color: "rgb(235, 235, 235)",
-                  bgcolor: "rgb(25, 118, 210)",
+                  bgcolor: "rgb(25, 118, 210)",                  
                 }}
               >
                 Selecionar Cliente
@@ -406,8 +441,7 @@ export default function CheckoutStepper() {
   return (
     <div>
       <Title>
-        <h2>Resumo da Venda</h2>
-        
+        <h2>Resumo da Venda</h2>        
         {(!isLoading) && 
           <span>
             <IconButton
@@ -419,6 +453,9 @@ export default function CheckoutStepper() {
           </span>
         }
       </Title>
+      {(cartEditMode) &&
+      <h3>{`Alteração da venda nº: ${cartEditInfo.saleCode}`}</h3>
+      }
       <Paper 
         elevation={0} 
         sx={{ padding: '1px 16px 16px 16px', bgcolor: '#f4f4f4', marginBottom: '24px'}}

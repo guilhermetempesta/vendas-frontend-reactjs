@@ -227,6 +227,7 @@ export default function Layout({children}) {
   const handleClickClearCart = () => {
     handleCartMenuClose();
     clearCart();
+    navigate("/cart");
   };
 
   const handleLogout = (event) => {

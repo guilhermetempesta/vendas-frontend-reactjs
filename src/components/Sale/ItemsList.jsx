@@ -239,7 +239,7 @@ const ItemsList = () => {
                 </div>
               )}
             </div>
-            <Grid container spacing={2} alignItems="center" height={'70px'}>
+            <Grid container spacing={2} alignItems="center" height={'80px'}>
               {selectedItem.decimal ? (
                 <Grid item>
                   <FormControl fullWidth style={{padding: '2px', marginTop: '4px'}}>

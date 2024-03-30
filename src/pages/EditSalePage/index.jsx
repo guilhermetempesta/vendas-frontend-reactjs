@@ -4,7 +4,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 
 import AlertSnackbar from "../../components/AlertSnackbar";
-import ItemsList from "../../components/Sale/ItemsList";
 import { Box } from "@mui/material";
 
 export default function SalePage() {
@@ -25,7 +24,7 @@ export default function SalePage() {
           flex: 1,
         }}
       >
-        <ItemsList/>
+        Teste
       </Box>
       {
         (showAlert.show === true) &&  

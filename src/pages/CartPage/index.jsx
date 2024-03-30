@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
-import { Box, Button, Card, CardActions, CardContent, Grid, IconButton, Stack, Typography, useMediaQuery } from "@mui/material";
+import { Box, Button, Card, CardActions, CardContent, Grid, Stack, Typography, useMediaQuery } from "@mui/material";
 import Title from "../../components/Title";
 import AlertSnackbar from "../../components/AlertSnackbar";
 
@@ -88,12 +88,12 @@ export default function CartPage() {
                     }
 
                     <Grid container spacing={1} alignItems="center" height={'40px'}>
-                      <Grid item>
+                      {/* <Grid item>
                         <IconButton 
                           size="small"
                           onClick={() => handleChangeItemQuantity(item.cartItemId, Math.max(item.quantity - 1, 1))}
                         >-</IconButton>
-                      </Grid>
+                      </Grid> */}
                       <Grid item>
                         <input 
                           type="number"
@@ -106,12 +106,12 @@ export default function CartPage() {
                           }}
                         />
                       </Grid>
-                      <Grid item>
+                      {/* <Grid item>
                         <IconButton 
                           size="small"
                           onClick={() => handleChangeItemQuantity(item.cartItemId, item.quantity + 1)}
                         >+</IconButton>
-                      </Grid>
+                      </Grid> */}
                     </Grid>
                     <Typography variant="h6" color="blue" style={{ marginLeft: '4px', display: 'flex', alignItems: 'center' }}>
                       <span style={{ marginRight: '2px' }}>R$</span>

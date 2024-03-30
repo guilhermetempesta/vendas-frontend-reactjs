@@ -36,14 +36,17 @@ import PDFGenerator from "../PDFGenerator";
 
 import AlertSnackbar from "../AlertSnackbar";
 import Title from "../Title";
-import { AuthContext } from "../../contexts/auth";
 import ConfirmationModal from "../ConfirmationModal";
+
+import { AuthContext } from "../../contexts/auth";
+import { CartContext } from "../../contexts/cart";
 
 
 export default function SalesDetailTable() {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width:600px)');
   const { user } = useContext(AuthContext);
+  const { cartItems, clearCart, setCartEditMode, setCartEditInfo, addItemToCart } = useContext(CartContext);
   
   const [showAlert, setShowAlert] = useState({show: false});
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +62,8 @@ export default function SalesDetailTable() {
   });
   const [dialogFilters, setTemporaryFilters] = useState({ ...filters });
   const [hasFilters, setHasFilters] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -123,22 +127,30 @@ export default function SalesDetailTable() {
     console.log('cancelar venda');
 
     const inLimit = isWithinDateLimit(selectedSale.date, 3);
-
     if (!inLimit) {
       setShowAlert({show: true, message: 'Não é possível cancelar esta venda!', severity: 'warning'});
       return
-    }
-    
-    setOpenModal(true);
+    }    
+    setOpenDeleteModal(true);
   };
 
-  const handleEditSale = async (id) => {
+  const handleEditSale = async () => {
     console.log('editar venda');
-    navigate(`/edit-sale/${id}`);
+    const inLimit = isWithinDateLimit(selectedSale.date, 3);
+    if (!inLimit) {
+      setShowAlert({show: true, message: 'Não é possível editar esta venda!', severity: 'warning'});
+      return
+    } 
+    
+    if (cartItems.length>0) {
+      setOpenEditModal(true);
+    } else {
+      EditSale();
+    }    
   };
   
-  const handleCloseModal = async (confirmed) => {
-    setOpenModal(false);
+  const handleCancelModal = async (confirmed) => {
+    setOpenDeleteModal(false);
 
     if (confirmed) {
       const saleId = selectedSale._id;  
@@ -167,7 +179,59 @@ export default function SalesDetailTable() {
     } else {
       console.log("Cancelamento não realizado.");
     }
+  };
 
+  const handleEditModal = async (confirmed) => {
+    setOpenEditModal(false);
+    if (confirmed) {      
+      clearCart();
+      EditSale();
+    } else {
+      console.log("Edição não realizada.");
+    }
+  };
+
+  const EditSale = () => {
+    console.log('Edição iniciada.');    
+    try {
+      setCartEditMode(true);
+
+      // if (selectedSale.discount > 0) {
+      //   selectedSale.discount = 0;
+      //   setShowAlert({show: true, message: 'Atenção: O desconto no total foi zerado e deverá ser aplicado novamente ao finalizar o carrinho.', severity: 'warning'});
+      // }
+
+      // salvar o cliente e a observação no contexto
+      console.log('código da venda: ' + selectedSale._id);
+      setCartEditInfo({
+        saleId: selectedSale._id,
+        saleCode: selectedSale.code.toString().padStart(6, '0'),
+        customer: {
+          _id: selectedSale.customer._id,
+          name: selectedSale.customer.name
+        },
+        comments: selectedSale.comments
+      })
+
+      // adicionar os itens da venda no contexto do carrinho
+      selectedSale.items.forEach(item => {
+        addItemToCart({
+          id: item.product._id, 
+          name: item.product.name,
+          price: item.unitPrice,
+          quantity: item.quantity
+        });
+      });
+      
+      // fechar dialog
+      setOpenViewDialog(false);
+
+      // ir para a tela do carrinho
+      navigate(`/cart`);
+
+    } catch {
+      clearCart();
+    }    
   };
   
   function Row(props) {
@@ -529,9 +593,17 @@ export default function SalesDetailTable() {
           </DialogActions>
         </Dialog>
         <ConfirmationModal
-          open={openModal}
-          onClose={handleCloseModal}
+          index='cancel-modal'
+          open={openDeleteModal}
+          onClose={handleCancelModal}
           message="Tem certeza que deseja cancelar esta venda?"
+          isSending={isSending}
+        />
+        <ConfirmationModal
+          index='edit-modal'
+          open={openEditModal}
+          onClose={handleEditModal}
+          message="Atenção! Ao iniciar a edição da venda, o carrinho atual será deletado. Continuar?"
           isSending={isSending}
         />
       </>

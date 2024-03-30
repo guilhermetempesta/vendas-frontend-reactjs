@@ -11,6 +11,17 @@ export const CartProvider = ({ children }) => {
 
   const [cartItems, setCartItems] = useState(initialCartItems);
   
+  const [cartEditMode, setCartEditMode] = useState(false);
+  const [cartEditInfo, setCartEditInfo] = useState({
+    saleId: "",
+    saleCode: "", 
+    customer: {
+      _id: 0,
+      name: ""
+    },
+    comments: ""
+  });
+  
   useEffect(() => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
   }, [cartItems]);
@@ -18,7 +29,6 @@ export const CartProvider = ({ children }) => {
   const addItemToCart = (item) => {
     const newItem = { ...item, cartItemId: uuidv4() }; // Adicionar um identificador único ao item
     setCartItems((prevCartItems) => [...prevCartItems, newItem]);
-    // setCartItems((prevCartItems) => [...prevCartItems, item]);
   };
 
   const changeItemQuantity = (cartItemId, newQuantity) => {
@@ -38,6 +48,9 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => {
     setCartItems([]);
+    setCartEditMode(false);
+    setCartEditInfo({});
+
     localStorage.removeItem('cartItems');
   };
 
@@ -54,7 +67,12 @@ export const CartProvider = ({ children }) => {
         clearCart,
         changeItemQuantity,
         removeItemFromCart,
-        getCartTotal
+        getCartTotal,
+        cartEditMode,
+        setCartEditMode,
+        cartEditInfo,
+        setCartEditInfo,
+        
       }}
     >
       {children}

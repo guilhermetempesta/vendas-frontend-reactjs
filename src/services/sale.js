@@ -53,6 +53,7 @@ export const addSale = async (sale) => {
 
 export const editSale = async (sale) => {
   try {
+    console.log(sale);
     const response = await api.put(`/sales/${sale.id}`, sale);
     return response;
   } catch(error) {
