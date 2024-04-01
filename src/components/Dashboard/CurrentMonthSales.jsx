@@ -42,7 +42,7 @@ export default function CurrentMonthSales() {
  
   const handleClickLink = (event) => {
     event.preventDefault();
-    navigate("reports/salessummary");
+    (user.role==='admin') ? navigate("reports/salessummary") : navigate("my-sales");
   };
 
   return (
@@ -60,12 +60,11 @@ export default function CurrentMonthSales() {
       <Typography color="text.secondary" sx={{ flex: 1 }}>
         Valor médio (R$): {data.salesAverage.toFixed(2).replace(".",",")}
       </Typography>
-      {(user.role==='admin') &&
       <div>
         <Link color="primary" onClick={(e) => handleClickLink(e)} sx={{ mt: 3, cursor: 'pointer' }}>
-          Ver Resumo de Vendas
+        {(user.role==='admin') ? 'Ver Resumo de Vendas' : 'Ver minhas vendas'}
         </Link>
-      </div>}
+      </div>
     </React.Fragment>
   );
 }
