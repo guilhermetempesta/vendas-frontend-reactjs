@@ -130,8 +130,12 @@ export default function ComissionTable() {
           <TableCell component="th" scope="row">
             {row.user.name}
           </TableCell>
-          <TableCell align="right">{row.totalSales.toFixed(2).replace(".",",")}</TableCell>
-          <TableCell align="right">{row.totalComission.toFixed(2).replace(".",",")}</TableCell>
+          <TableCell align="right">
+            {(row.totalSales) ? row.totalSales.toFixed(2).replace(".",",") : '0,00'}
+          </TableCell>
+          <TableCell align="right">
+            {(row.totalComission) ? row.totalComission.toFixed(2).replace(".",",") : '0.00'}
+          </TableCell>
         </TableRow>
         <TableRow>
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -156,8 +160,12 @@ export default function ComissionTable() {
                           {formatDatePtBr(item.date)}
                         </TableCell>
                         <TableCell>{item.customer.name}</TableCell>
-                        <TableCell align="right">{item.totalValue.toFixed(2).replace(".",",")}</TableCell>
-                        <TableCell align="right">{item.comissionValue.toFixed(2).replace(".",",")}</TableCell>
+                        <TableCell align="right">
+                          {(item.totalValue) ? item.totalValue.toFixed(2).replace(".",",") : '0,00'}
+                        </TableCell>
+                        <TableCell align="right">
+                          {(item.comissionValue) ? item.comissionValue.toFixed(2).replace(".",",") : '0,00'}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
