@@ -31,8 +31,21 @@ export default function CartPage() {
   const handleClickCheckoutCart = () => {
     if (cartItems.length === 0) {
       setShowAlert({show: true, message: 'O carrinho está vazio!', severity: 'warning'});
-      return
+      return;
     }
+    
+    let hasZeroQuantity = false;
+    cartItems.forEach(item => {
+      if (item.quantity === 0) {
+        hasZeroQuantity = true; 
+        return; 
+      }
+    });
+
+    if (hasZeroQuantity) {
+      setShowAlert({show: true, message: 'Existem itens com quantidade zerada', severity: 'warning'});
+      return;
+    }   
     
     navigate('/cart-checkout');
   };

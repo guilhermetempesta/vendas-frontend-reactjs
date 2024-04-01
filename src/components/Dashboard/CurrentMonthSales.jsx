@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import Title from '../Title';
@@ -6,9 +6,11 @@ import { currentDate, formatDatePtBr, getMonthAndYear } from '../../commons/util
 import { useNavigate } from 'react-router-dom';
 import { getTotalSalesCurrentMonth } from '../../services/dashboard';
 import { clearUserData } from '../../commons/authVerify';
+import { AuthContext } from "../../contexts/auth";
 
 export default function CurrentMonthSales() {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);  
   const [data, setData] = useState({
     totalSales: 0,
 	  salesQuantity: 0,
@@ -20,7 +22,8 @@ export default function CurrentMonthSales() {
     window.scrollTo(0, 0);
   
     const loadData = async () => {
-      const response = await getTotalSalesCurrentMonth();
+      const onlyCurrentUser = (user.role!=='admin');
+      const response = await getTotalSalesCurrentMonth(onlyCurrentUser);
       console.log(response);
       
       if (response.networkError) {
@@ -35,7 +38,7 @@ export default function CurrentMonthSales() {
   
     };
     loadData();
-  }, []);
+  }, [navigate, user]);
  
   const handleClickLink = (event) => {
     event.preventDefault();
@@ -57,11 +60,12 @@ export default function CurrentMonthSales() {
       <Typography color="text.secondary" sx={{ flex: 1 }}>
         Valor médio (R$): {data.salesAverage.toFixed(2).replace(".",",")}
       </Typography>
+      {(user.role==='admin') &&
       <div>
         <Link color="primary" onClick={(e) => handleClickLink(e)} sx={{ mt: 3, cursor: 'pointer' }}>
           Ver Resumo de Vendas
         </Link>
-      </div>
+      </div>}
     </React.Fragment>
   );
 }

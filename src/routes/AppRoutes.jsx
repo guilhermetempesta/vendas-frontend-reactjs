@@ -94,6 +94,7 @@ const AppRoutes = () => {
             <Route exact path="/reports/salesbyday" element={<Private><Layout><SalesByDayReportPage/></Layout></Private>}/>
             <Route exact path="/cart" element={<Private><Layout><CartPage/></Layout></Private>}/>
             <Route exact path="/cart-checkout" element={<Private><Layout><CartCheckoutPage/></Layout></Private>}/>
+            <Route exact path="/my-sales" element={<Private><Layout><SalesReport/></Layout></Private>}/>
             {/* test routes */}
             <Route exact path="/test1" element={<Private><Layout><TestParagraph1/></Layout></Private>}/>
             <Route exact path="/test2" element={<Private><Layout><TestParagraph2/></Layout></Private>}/>

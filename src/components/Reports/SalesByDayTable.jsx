@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 
-import { TableFooter, useMediaQuery } from "@mui/material";
+import { 
+  TableFooter, 
+  // useMediaQuery 
+} from "@mui/material";
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -28,6 +31,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { currentDate, firstDayOfMonth, formatDatePtBr } from '../../commons/utils';
 import { useNavigate } from "react-router-dom";
 import { clearUserData } from "../../commons/authVerify";
+import { AuthContext } from "../../contexts/auth";
 
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import PDFGenerator from "../PDFGenerator";
@@ -38,8 +42,9 @@ import { getSalesByDay } from "../../services/sale";
 
 export default function SalesByDayTable() {
   const navigate = useNavigate();
-  const isMobile = useMediaQuery('(max-width:600px)');
-  
+  // const isMobile = useMediaQuery('(max-width:600px)');
+  const { user } = useContext(AuthContext);
+
   const [showAlert, setShowAlert] = useState({show: false});
   const [isLoading, setIsLoading] = useState(false);
   const [rows, setRows] = useState([]);
@@ -55,8 +60,9 @@ export default function SalesByDayTable() {
     window.scrollTo(0, 0);
 
     const loadSalesByDay = async () => {
-      setIsLoading(true);
-      const response = await getSalesByDay(filters);
+      const onlyCurrentUser = (user.role!=='admin'); 
+      setIsLoading(true);      
+      const response = await getSalesByDay(filters, onlyCurrentUser);
       console.log(response);
       
       if (response.networkError) {
@@ -79,7 +85,7 @@ export default function SalesByDayTable() {
 
     console.log('useEffect')
     loadSalesByDay(navigate, filters);
-  }, [navigate, filters]);
+  }, [navigate, filters, user]);
   
   const handleFilterClick = () => {
     setTemporaryFilters({ ...filters });

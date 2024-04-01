@@ -1,6 +1,6 @@
 import { api } from './api'
 
-export const getSales = async (filters) => {
+export const getSales = async (filters, filteredCurrentUser) => {
   try {
     const queryParams = [];
     let query = null;
@@ -20,8 +20,14 @@ export const getSales = async (filters) => {
     
     console.log('query:', query);
 
-    const response = (query) ? await api.get(`/sales?${query}`) : await api.get('/sales');
-    // const response = await api.get('/sales');
+    let endpoint
+    if (filteredCurrentUser) {
+      endpoint = '/reports/user-sales'
+    } else {
+      endpoint = '/sales'
+    }
+
+    const response = (query) ? await api.get(`${endpoint}?${query}`) : await api.get(endpoint);
     return response;
   } catch(error) {
     if (!error.response) {
@@ -116,7 +122,7 @@ export const getSalesSummary = async () => {
   } 
 }
 
-export const getSalesByDay = async (filters) => {
+export const getSalesByDay = async (filters, onlyCurrentUser) => {
   try {
     const queryParams = [];
     let query = null;
@@ -133,7 +139,13 @@ export const getSalesByDay = async (filters) => {
     
     console.log('query:', query);
 
-    const response = await api.get(`/reports/sales-by-day?${query}`);
+    let response 
+    if (onlyCurrentUser) {
+      response = await api.get(`/reports/user-sales-by-day?${query}`);
+    } else {
+      response = await api.get(`/reports/sales-by-day?${query}`);
+    }    
+    
     return response;
   } catch(error) {
     if (!error.response) {

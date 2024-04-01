@@ -1,20 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import React, { useContext, useEffect, useState } from 'react';
+import { 
+  // LineChart, Line, 
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area 
+} from 'recharts';
 import Title from '../Title';
-import { getMonthAndYear } from '../../commons/utils';
+// import { getMonthAndYear } from '../../commons/utils';
 import { getSalesLast30Days } from '../../services/dashboard';
 import { clearUserData } from '../../commons/authVerify';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from "../../contexts/auth";
 
 export default function SalesChartLast30Days() {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);  
   const [data, setData] = useState([]);
   
   useEffect(() => {
     window.scrollTo(0, 0);
   
     const loadData = async () => {
-      const response = await getSalesLast30Days();
+      const onlyCurrentUser = (user.role!=='admin');
+
+      const response = await getSalesLast30Days(onlyCurrentUser);
       console.log(response);
       
       if (response.networkError) {
@@ -32,7 +39,7 @@ export default function SalesChartLast30Days() {
       };
     };
     loadData();
-  }, []);
+  }, [navigate, user]);
   
   
   return (

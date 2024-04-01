@@ -151,6 +151,10 @@ const menuItemsUser = [
     text: 'Venda',
     path: '/new-sale',
     imageIndex: 3
+  },{
+    text: 'Minhas vendas',
+    path: '/my-sales',
+    imageIndex: 4
   }
 ]
 
@@ -170,7 +174,7 @@ export default function Layout({children}) {
   const navigate = useNavigate();
   const isDesktop = useMediaQuery('(min-width:600px)');
   const { logout, user } = useContext(AuthContext);
-  const { cartItems, clearCart, getCartTotal } = useContext(CartContext);
+  const { cartItems, clearCart, getCartTotal, cartEditMode, cartEditInfo } = useContext(CartContext);
 
   const theme = useTheme();
   const [open, setOpen] = useState(isDesktop);
@@ -229,6 +233,12 @@ export default function Layout({children}) {
     clearCart();
     navigate("/cart");
   };
+
+  const handleClickCancelEditSale = () => {
+    handleCartMenuClose();
+    clearCart();
+    navigate("/reports/sales");
+  }
 
   const handleLogout = (event) => {
     logout();
@@ -350,12 +360,21 @@ export default function Layout({children}) {
       onClose={handleCartMenuClose}
     >
       {/* Div com informações adicionais */}
+      { (cartEditMode) &&
+        <div style={{ padding: '8px', borderBottom: '1px solid #ccc' }}>
+          <Typography variant="h6" color="red">
+            {`Editando a venda nº ${cartEditInfo.saleCode}`}
+          </Typography>
+        </div>}  
       <div style={{ padding: '16px', borderBottom: '1px solid #ccc' }}>
         <Typography variant="body1">{getNumberItemsInCart()}</Typography>
         <Typography variant="h6" color="blue">R$ {calculateTotalCartItems().toFixed(2)}</Typography>
       </div>      
       <MenuItem onClick={handleClickShowCart}>Ver carrinho</MenuItem>
-      <MenuItem onClick={handleClickClearCart}>Limpar itens</MenuItem>
+      {(cartEditMode) 
+        ? <MenuItem onClick={handleClickCancelEditSale}>Cancelar Edição</MenuItem>
+        : <MenuItem onClick={handleClickClearCart}>Limpar itens</MenuItem>
+      }
     </Menu>
   );
 

@@ -160,7 +160,7 @@ export default function CheckoutStepper() {
     event.preventDefault();
     
     console.log('cartItems', cartItems);
-
+    
     if (cartItems.length === 0) {
       setShowAlert({show: true, message: 'O carrinho está vazio!', severity: 'warning'});
 
@@ -238,8 +238,9 @@ export default function CheckoutStepper() {
     };    
     
     if (statusSuccess.includes(response.status)) {      
+      const message = (cartEditMode) ? 'Venda alterada com sucesso.' : 'Venda realizada com sucesso.';
       setIsSuccess(true);
-      setShowAlert({show: true, message: 'Venda realizada com sucesso.', severity: 'success'});      
+      setShowAlert({show: true, message: message, severity: 'success'});      
       setTimeout(() => {
         clearCart();
         navigate('/');

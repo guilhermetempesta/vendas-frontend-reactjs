@@ -69,8 +69,9 @@ export default function SalesDetailTable() {
     window.scrollTo(0, 0);
 
     const loadSales = async () => {
+      const filteredCurrentUser = (user.role!=='admin');
       setIsLoading(true);
-      const response = await getSales(filters);
+      const response = await getSales(filters, filteredCurrentUser);
       console.log(response);
       
       if (response.networkError) {
@@ -93,7 +94,7 @@ export default function SalesDetailTable() {
 
     console.log('useEffect')
     loadSales(navigate, filters);
-  }, [navigate, filters]);
+  }, [navigate, filters, user]);
   
   const handleFilterClick = () => {
     setTemporaryFilters({ ...filters });

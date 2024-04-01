@@ -29,9 +29,39 @@ export default function HomePage (props) {
       <CssBaseline />        
       <Title>{(user.role === 'user')? <h2>Início</h2> : <h2>Dashboard</h2>}</Title>
       {(user.role === 'user') ?
-        <Box>
-          <p>Olá, {user.name}!</p>
-        </Box>
+        <>
+          <Box>
+            <p>Olá, {user.name}!</p>
+          </Box>
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={8} lg={9}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: 240,
+                  }}
+                >
+                  <SalesChartLast30Days />
+                </Paper>
+              </Grid>              
+              <Grid item xs={12} md={4} lg={3}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: 240,
+                  }}
+                >
+                  <CurrentMonthSales />
+                </Paper>
+              </Grid>
+            </Grid>
+          </Container>
+        </>      
         :
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Grid container spacing={3}>
