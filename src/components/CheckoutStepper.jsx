@@ -37,7 +37,7 @@ const steps = [
     label: 'Identificação do cliente'
   },
   {
-    label: 'Opções de desconto'
+    label: 'Opções de desconto e acréscimo'
   },
   {
     label: 'Observação'
@@ -63,12 +63,13 @@ export default function CheckoutStepper() {
   const [isCustomerDialogOpen, setCustomerDialogOpen] = useState(false);
   const [customers, setCustomers] = useState([]); // Array de clientes
   const [searchText, setSearchText] = useState("");
-  // const [editingAddition, setEditingAddition] = false;
-  // const [addition, setAddition] = useState(0);
   const [editingDiscount, setEditingDiscount] = useState(false);
-  const [editedDiscount, setEditedDiscount] = useState(0)
+  const [editedDiscount, setEditedDiscount] = useState(0);
   const [discount, setDiscount] = useState(0); 
-  const [total, setTotal] = useState(getCartTotal() - discount);
+  const [editingAddition, setEditingAddition] = useState(false);
+  const [editedAddition, setEditedAddition] = useState(0);
+  const [addition, setAddition] = useState(0);
+  const [total, setTotal] = useState(getCartTotal() - discount + addition);
   const [comments, setComments] = useState(""); 
 
   useEffect(() => {    
@@ -86,13 +87,15 @@ export default function CheckoutStepper() {
 
   const handleConfirmDiscountEdit = () => {
     const cartTotal = getCartTotal();
-    const maxAllowedDiscount = cartTotal * 0.1; 
+    // const maxAllowedDiscount = cartTotal * 0.1; 
 
-    if (editedDiscount > maxAllowedDiscount) {
-      setShowAlert({show: true, message: 'O desconto excede o limite permitido!', severity: 'warning'});
-      return;
-    }
-    const total = cartTotal - editedDiscount;
+    // if (editedDiscount > maxAllowedDiscount) {
+    //   setShowAlert({show: true, message: 'O desconto excede o limite permitido!', severity: 'warning'});
+    //   return;
+    // }
+    // const total = cartTotal - editedDiscount;
+    const total = parseFloat(cartTotal) + parseFloat(editedAddition) - parseFloat(editedDiscount);
+    console.log(editedDiscount, total, editingDiscount)
     
     setDiscount(editedDiscount);
     setTotal(total);
@@ -101,6 +104,26 @@ export default function CheckoutStepper() {
 
   const handleCancelDiscountEdit = () => {
     setEditingDiscount(false);
+  };
+
+  const handleEditAddition = () => {
+    setEditingAddition(true);
+    setEditedAddition(addition.toString());
+  };
+
+  const handleConfirmAdditionEdit = () => {
+    const cartTotal = getCartTotal();
+    const total = parseFloat(cartTotal) + parseFloat(editedAddition) - parseFloat(editedDiscount);
+
+    console.log(editedAddition, total, editingAddition)
+    
+    setAddition(editedAddition);
+    setTotal(total);
+    setEditingAddition(false);
+  };
+
+  const handleCancelAdditionEdit = () => {
+    setEditingAddition(false);
   };
 
   const handleNext = () => {
@@ -196,7 +219,7 @@ export default function CheckoutStepper() {
         customer: selectedCustomer._id,
         subtotal: subTotal,
         discount: discount,
-        addition: 0.00,
+        addition: addition,
         total: total,
         items: saleItems,
         comments: comments
@@ -223,7 +246,7 @@ export default function CheckoutStepper() {
         date: currentDate,
         subtotal: subTotal,
         discount: discount,
-        addition: 0.00,
+        addition: discount,
         total: total,
         items: saleItems,
         comments: comments
@@ -271,7 +294,8 @@ export default function CheckoutStepper() {
         );
       case 1:
         return (
-          <Typography variant="caption">{`R$ ${parseFloat(discount).toFixed(2).replace('.', ',')}`}</Typography>
+          <></>
+          // <Typography variant="caption">{`R$ ${parseFloat(discount).toFixed(2).replace('.', ',')}`}</Typography>
         );
       case 2:
         return (
@@ -290,6 +314,7 @@ export default function CheckoutStepper() {
             <div 
               style={{ padding: (isMobile) ? '2px' : '16px' }}
             >
+              <Divider /> 
               <Link 
                 onClick={openCustomerDialog} 
                 underline='hover'
@@ -384,45 +409,80 @@ export default function CheckoutStepper() {
         );
       case 1:
         return (
-          <div style={{ display: 'flex', alignItems: 'center', padding: (isMobile) ? '2px' : '16px' }}>
-            {editingDiscount ? (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography sx={{ marginRight: '8px' }}>
-                  {isMobile ? 'R$' : 'Desconto: R$'}
-                </Typography>
-                <input
-                  type="number"
-                  value={editedDiscount}
-                  onChange={(e) => setEditedDiscount(e.target.value)}
-                  style={{ height: '25px', width: '70px', textAlign: 'right' }}
-                  fullWidth
-                />
-                <IconButton onClick={handleConfirmDiscountEdit}>
-                  <CheckIcon />
-                </IconButton>
-                <IconButton onClick={handleCancelDiscountEdit}>
-                  <CloseIcon />
-                </IconButton>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="body1">
-                  {isMobile 
-                    ? `R$ ${parseFloat(discount).toFixed(2).replace('.', ',')}`
-                    : `Desconto: R$ ${parseFloat(discount).toFixed(2).replace('.', ',')}`
-                  }
-                </Typography>
-                <IconButton onClick={handleEditDiscount}>
-                  <EditIcon />
-                </IconButton>
-              </div>
-            )}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'left', padding: (isMobile) ? '2px' : '16px' }}>
+            <Divider />
+            {/* Desconto */}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Typography sx={{ marginRight: '8px' }}>
+                Desconto: R$ 
+              </Typography>
+              {editingDiscount ? (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="number"
+                    value={editedDiscount}
+                    onChange={(e) => setEditedDiscount(e.target.value)}
+                    style={{ height: '25px', width: '70px', textAlign: 'right' }}
+                    fullWidth
+                  />
+                  <IconButton onClick={handleConfirmDiscountEdit}>
+                    <CheckIcon />
+                  </IconButton>
+                  <IconButton onClick={handleCancelDiscountEdit}>
+                    <CloseIcon />
+                  </IconButton>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="body1">
+                    {parseFloat(discount).toFixed(2).replace('.', ',')}
+                  </Typography>
+                  <IconButton onClick={handleEditDiscount}>
+                    <EditIcon />
+                  </IconButton>
+                </div>
+              )}
+            </div>
+
+            {/* Acréscimo */}
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: isMobile ? '8px' : '0' }}>
+              <Typography sx={{ marginRight: '8px' }}>
+                Acréscimo: R$
+              </Typography>
+              {editingAddition ? (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="number"
+                    value={editedAddition}
+                    onChange={(e) => setEditedAddition(e.target.value)}
+                    style={{ height: '25px', width: '70px', textAlign: 'right' }}
+                    fullWidth
+                  />
+                  <IconButton onClick={handleConfirmAdditionEdit}>
+                    <CheckIcon />
+                  </IconButton>
+                  <IconButton onClick={handleCancelAdditionEdit}>
+                    <CloseIcon />
+                  </IconButton>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="body1">
+                    {parseFloat(addition).toFixed(2).replace('.', ',')}
+                  </Typography>
+                  <IconButton onClick={handleEditAddition}>
+                    <EditIcon />
+                  </IconButton>
+                </div>
+              )}
+            </div>
           </div>
         );
       case 2:
         return (
           <Box sx={{ width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', width: '100%', padding: (isMobile) ? '2px' : '16px'}}>
+              <Divider />
               <Typography sx={{ marginRight: '8px' }}></Typography>
               <TextField
                 multiline
@@ -468,11 +528,12 @@ export default function CheckoutStepper() {
           </Typography>
           <Typography sx={{ lineHeight: '0.85' }}>Desconto:</Typography>
           <Typography sx={{ textAlign: 'right', lineHeight: '0.85' }}>
-            {/* {discount} */}
             {parseFloat(discount).toFixed(2).replace('.', ',')}
           </Typography>
-          {/* <Typography sx={{ lineHeight: '0.85' }}>Acréscimo:</Typography>
-          <Typography sx={{ textAlign: 'right', lineHeight: '0.85' }}>0.00</Typography> */}
+          <Typography sx={{ lineHeight: '0.85' }}>Acréscimo:</Typography>
+          <Typography sx={{ textAlign: 'right', lineHeight: '0.85' }}>
+            {parseFloat(addition).toFixed(2).replace('.', ',')}
+          </Typography>
           <Divider sx={{ gridColumn: 'span 2', mb: 1, height: '0px' }} />
           <Typography sx={{ lineHeight: '0.85' }}>Total:</Typography>
           <Typography sx={{ textAlign: 'right', lineHeight: '0.85' }}>
@@ -504,7 +565,7 @@ export default function CheckoutStepper() {
                     >
                       {step.label}
                     </StepLabel>
-                    <StepContent>
+                    <StepContent>                      
                       {renderStepContent(index)}
                       {(!isSuccess) && <Box sx={{ mb: 2 }}>
                         <div>

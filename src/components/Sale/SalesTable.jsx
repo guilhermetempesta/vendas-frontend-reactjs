@@ -439,9 +439,10 @@ export default function SalesDetailTable() {
                     <TableRow >
                       <TableCell>Produto</TableCell>
                       <TableCell align="right">Quantidade</TableCell>
-                      <TableCell align="right">Preço Unitário</TableCell>
-                      <TableCell align="right">Desconto</TableCell>
-                      <TableCell align="right">Preço Total</TableCell>
+                      <TableCell align="right">Vlr. Unit.</TableCell>
+                      <TableCell align="right">Desc. Item</TableCell>
+                      <TableCell align="right">Acrés. Item</TableCell>
+                      <TableCell align="right">Total</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -451,6 +452,7 @@ export default function SalesDetailTable() {
                         <TableCell align="right">{item.quantity.toFixed(3).replace(".",",")}</TableCell>
                         <TableCell align="right">{item.unitPrice.toFixed(2).replace(".",",")}</TableCell>
                         <TableCell align="right">{item.discount.toFixed(2).replace(".",",")}</TableCell>
+                        <TableCell align="right">{item.addition.toFixed(2).replace(".",",")}</TableCell>
                         <TableCell align="right">{item.totalPrice.toFixed(2).replace(".",",")}</TableCell>
                       </TableRow>
                     ))}
@@ -489,6 +491,16 @@ export default function SalesDetailTable() {
                   </div>
                   <div style={{ display: "table-row" }}>
                     <div style={{ display: "table-cell", paddingRight: "8px" }}>
+                      <Typography variant="body2">Acréscimo (R$):</Typography>
+                    </div>
+                    <div style={{ display: "table-cell", textAlign: "right" }}>
+                      <Typography variant="body1" fontWeight="bold">
+                        {selectedSale.addition.toFixed(2).replace(".", ",")}
+                      </Typography>
+                    </div>
+                  </div>
+                  <div style={{ display: "table-row" }}>
+                    <div style={{ display: "table-cell", paddingRight: "8px" }}>
                       <Typography variant="body2">Total (R$):</Typography>
                     </div>
                     <div style={{ display: "table-cell", textAlign: "right" }}>
@@ -516,6 +528,9 @@ export default function SalesDetailTable() {
                   <span 
                     style={{ fontSize: '1rem', fontWeight: 'bold' }}
                   > Desconto (R$): {selectedSale.discount.toFixed(2).replace(".",",")} </span>
+                  <span 
+                    style={{ fontSize: '1rem', fontWeight: 'bold' }}
+                  > Acréscimo (R$): {selectedSale.addition.toFixed(2).replace(".",",")} </span>
                   <span 
                     style={{ fontSize: '1rem', fontWeight: 'bold' }}
                   > Total (R$): {selectedSale.total.toFixed(2).replace(".",",")} </span>

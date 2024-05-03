@@ -32,9 +32,10 @@ const SalesDetailDialog = ({ open, onClose, selectedSale }) => {
                 <TableRow>
                   <TableCell>Produto</TableCell>
                   <TableCell align="right">Quantidade</TableCell>
-                  <TableCell align="right">Preço Unitário</TableCell>
+                  <TableCell align="right">Vlr. Unit.</TableCell>
                   <TableCell align="right">Desconto</TableCell>
-                  <TableCell align="right">Preço Total</TableCell>
+                  <TableCell align="right">Acréscimo</TableCell>
+                  <TableCell align="right">Total</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -44,6 +45,7 @@ const SalesDetailDialog = ({ open, onClose, selectedSale }) => {
                     <TableCell align="right">{item.quantity}</TableCell>
                     <TableCell align="right">{item.unitPrice}</TableCell>
                     <TableCell align="right">{item.discount}</TableCell>
+                    <TableCell align="right">{item.addition}</TableCell>
                     <TableCell align="right">{item.totalPrice}</TableCell>
                   </TableRow>
                 ))}
