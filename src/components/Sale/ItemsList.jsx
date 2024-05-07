@@ -243,7 +243,7 @@ const ItemsList = () => {
               {selectedItem.decimal ? (
                 <Grid item>
                   <FormControl fullWidth style={{padding: '2px', marginTop: '4px'}}>
-                    <InputLabel htmlFor="price">Preço</InputLabel>
+                    <InputLabel htmlFor="decimal-quantity-label">Quantidade</InputLabel>
                     <OutlinedInput
                       id="decimal-quantity"
                       type="number" 

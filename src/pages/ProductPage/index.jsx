@@ -124,7 +124,7 @@ export default function ProductPage() {
     if (response.status===200) {
       navigate("/products");  
     } else {
-      setShowAlert({show: true, message: response.data.message, severity: 'warning'});
+      setShowAlert({show: true, message: response.data.error, severity: 'warning'});
     }
   }
 

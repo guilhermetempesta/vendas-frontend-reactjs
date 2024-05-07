@@ -246,7 +246,7 @@ export default function CheckoutStepper() {
         date: currentDate,
         subtotal: subTotal,
         discount: discount,
-        addition: discount,
+        addition: addition,
         total: total,
         items: saleItems,
         comments: comments

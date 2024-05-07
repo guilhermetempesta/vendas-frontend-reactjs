@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import CssBaseline from '@mui/material/CssBaseline';
@@ -19,10 +19,12 @@ import { onlyNumbers } from "../../commons/utils";
 import NumberFormat from "react-number-format";
 import { deleteCustomer, getCustomer, addCustomer, editCustomer } from "../../services/customer";
 import Title from "../../components/Title";
+import { AuthContext } from "../../contexts/auth";
 
 export default function CustomerPage() {
   const {id} = useParams();
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
   
   const [customer, setCustomer] = useState({
     id: '',
@@ -117,7 +119,7 @@ export default function CustomerPage() {
     if (response.status===200) {      
       navigate("/customers");  
     } else {
-      setShowAlert({show: true, message: response.data.message, severity: 'warning'});
+      setShowAlert({show: true, message: response.data.error, severity: 'warning'});
     }
   }
 
@@ -126,7 +128,7 @@ export default function CustomerPage() {
       <CssBaseline />
       <Title>        
         { (editMode) ? <h2>Editar Cliente</h2> : <h2>Novo Cliente</h2> }
-        { (editMode) && 
+        { (editMode) && (user.role==="admin") &&
           <Stack direction="row" spacing={1}>
             <IconButton 
               aria-label="delete" 
