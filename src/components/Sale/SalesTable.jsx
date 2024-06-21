@@ -127,21 +127,22 @@ export default function SalesDetailTable() {
   const handleDeleteSale = () => {
     console.log('cancelar venda');
 
-    const inLimit = isWithinDateLimit(selectedSale.date, 3);
-    if (!inLimit) {
-      setShowAlert({show: true, message: 'Não é possível cancelar esta venda!', severity: 'warning'});
-      return
-    }    
+    // const inLimit = isWithinDateLimit(selectedSale.date, 3);
+    // if (!inLimit) {
+    //   setShowAlert({show: true, message: 'Não é possível cancelar esta venda!', severity: 'warning'});
+    //   return
+    // }    
     setOpenDeleteModal(true);
   };
 
   const handleEditSale = async () => {
     console.log('editar venda');
-    const inLimit = isWithinDateLimit(selectedSale.date, 3);
-    if (!inLimit) {
-      setShowAlert({show: true, message: 'Não é possível editar esta venda!', severity: 'warning'});
-      return
-    } 
+
+    // const inLimit = isWithinDateLimit(selectedSale.date, 3);
+    // if (!inLimit) {
+    //   setShowAlert({show: true, message: 'Não é possível editar esta venda!', severity: 'warning'});
+    //   return
+    // } 
     
     if (cartItems.length>0) {
       setOpenEditModal(true);
