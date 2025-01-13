@@ -1,13 +1,14 @@
 import { api } from './api'
 
-export const getCustomers = async (filters) => {
+export const getCustomers = async (name) => {
   try {
     const queryParams = [];
+    console.log('filter by name: ', name);
     let query = null;
 
-    if (filters) {      
-      if (filters.name !== '') {
-        queryParams.push(`name=${filters.name}`);
+    if (name) {      
+      if (name !== '') {
+        queryParams.push(`name=${name}`);
       }
       query = queryParams.join('&');
     }    

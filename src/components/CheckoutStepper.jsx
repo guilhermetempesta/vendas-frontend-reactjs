@@ -151,8 +151,8 @@ export default function CheckoutStepper() {
   };
 
   const fetchCustomers = async (searchText) => {
-    console.log('fetchCustomers');
-    const response = await getCustomers();
+    console.log('fetchCustomers.searchText --> ' + searchText);
+    const response = await getCustomers(searchText);
 
     if (statusSuccess.includes(response.status)) {      
       setCustomers(response.data);  

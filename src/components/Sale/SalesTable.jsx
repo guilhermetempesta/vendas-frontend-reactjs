@@ -408,9 +408,11 @@ export default function SalesDetailTable() {
                   <DeleteIcon />
                 </IconButton>
               )}
-              <IconButton sx={{ color: 'white' }} onClick={handleEditSale}>
-                <EditIcon />
-              </IconButton>
+              {user.role === 'admin' && (
+                <IconButton sx={{ color: 'white' }} onClick={handleEditSale}>
+                  <EditIcon />
+                </IconButton>
+              )}
             </div>
           </DialogTitle>
           {selectedSale && (
